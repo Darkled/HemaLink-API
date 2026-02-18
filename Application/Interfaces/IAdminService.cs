@@ -7,5 +7,10 @@ namespace Application.Interfaces
     {
         Task<StaffResponseDto> RegisterModeratorAsync(ModeratorRegistrationRequestDto request);
         Task<StaffResponseDto> PromoteModeratorAsync(ModeratorPromotionDto request);
+        Task<List<AccountListDto>> GetUsersByRoleAsync(string role);
+        Task<AccountListDto?> GetUserByEmailAsync(string email);
+        Task<bool> DeleteAccountAsync(string email);
+
+
     }
 }

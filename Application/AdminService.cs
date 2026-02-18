@@ -70,5 +70,64 @@ namespace Application
             };
 
         }
+
+        public async Task<List<AccountListDto>> GetUsersByRoleAsync(string role)
+        {
+            var users = await _accountRepository.GetAllAsync();
+
+            if (!string.IsNullOrEmpty(role))
+            {
+                users = users.Where(u =>
+                    u is Staff staff && staff.Role.ToString().Equals(role, StringComparison.OrdinalIgnoreCase)
+                    || (role == "Requester" && u is Requester)
+                ).ToList();
+            }
+
+            return users.Select(u => new AccountListDto
+            {
+                Name = u.Name,
+                Email = u.Email,
+                Role = u switch
+                {
+                    Staff s => s.Role.ToString(),
+                    Requester => "Requester",
+                    _ => "Unknown"
+                }
+            }).ToList();
+        }
+
+        public async Task<AccountListDto?> GetUserByEmailAsync(string email)
+        {
+            var user = await _accountRepository.GetAsync(email);
+
+            if (user == null)
+                return null;
+
+            return new AccountListDto
+            {
+                Name = user.Name,
+                Email = user.Email,
+                Role = user switch
+                {
+                    Staff s => s.Role.ToString(),
+                    Requester => "Requester",
+                    _ => "Unknown"
+                }
+            };
+        }
+
+        public async Task<bool> DeleteAccountAsync(string email)
+        {
+            var user = await _accountRepository.GetAsync(email);
+
+            if (user == null)
+                throw new InvalidOperationException("User not found.");
+
+            user.IsActive = false;
+
+            await _accountRepository.UpdateAsync(user);
+
+            return true;
+        }
     }
 }

@@ -66,5 +66,69 @@ namespace WebAPI.Controllers
                 });
             }
         }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("users-list")]
+        public async Task<ActionResult<ResponseDto<List<AccountListDto>>>> GetUsers([FromQuery] string? role)
+        {
+            var result = await _adminService.GetUsersByRoleAsync(role ?? "");
+
+            return Ok(new ResponseDto<List<AccountListDto>>
+            {
+                Status = 200,
+                Message = "Success",
+                Data = result
+            });
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("user-by-email")]
+        public async Task<ActionResult<ResponseDto<AccountListDto>>> GetByEmail([FromQuery] string email)
+        {
+            var user = await _adminService.GetUserByEmailAsync(email);
+
+            if (user == null)
+            {
+                return NotFound(new ResponseDto<string>
+                {
+                    Status = 404,
+                    Message = "User not found",
+                    Data = null
+                });
+            }
+
+            return Ok(new ResponseDto<AccountListDto>
+            {
+                Status = 200,
+                Message = "Success",
+                Data = user
+            });
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("delete-account")]
+        public async Task<ActionResult<ResponseDto<string>>> Delete([FromQuery] string email)
+        {
+            try
+            {
+                await _adminService.DeleteAccountAsync(email);
+
+                return Ok(new ResponseDto<string>
+                {
+                    Status = 200,
+                    Message = "Account deleted successfully",
+                    Data = null
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new ResponseDto<string>
+                {
+                    Status = 400,
+                    Message = ex.Message,
+                    Data = null
+                });
+            }
+        }
     }
 }
