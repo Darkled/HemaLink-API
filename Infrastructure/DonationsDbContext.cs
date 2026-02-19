@@ -19,7 +19,7 @@ namespace Infrastructure
                 Name = "admin",
                 Email = "admin",
                 Password = BCrypt.Net.BCrypt.HashPassword("admin"),
-                Role = StaffRole.Admin
+                Role = Role.Admin
             };
 
             Staff mod = new Staff()
@@ -28,7 +28,7 @@ namespace Infrastructure
                 Name = "mod",
                 Email = "mod",
                 Password = BCrypt.Net.BCrypt.HashPassword("mod"),
-                Role = StaffRole.Moderator
+                Role = Role.Moderator
             };
 
             Requester GruppeSechs = new Requester()
@@ -37,6 +37,7 @@ namespace Infrastructure
                 Name = "Gruppe Sechs",
                 Email = "gruppesechs@mail.com",
                 Password = BCrypt.Net.BCrypt.HashPassword("gruppesechs"),
+                Role = Role.User,
                 AdmissionStatus = AdmissionStatus.Accepted
             };
 

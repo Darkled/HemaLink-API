@@ -1,7 +1,8 @@
 ﻿namespace Domain.Models.Enums
 {
-    public enum StaffRole
+    public enum Role
     {
+        User,
         Moderator,
         Admin
     }

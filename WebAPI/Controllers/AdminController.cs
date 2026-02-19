@@ -2,6 +2,7 @@
 using Application.Models;
 using Application.Models.Requests;
 using Application.Models.Responses;
+using Domain.Models.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,6 +10,7 @@ namespace WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class AdminController : ControllerBase
     {
         private readonly IAdminService _adminService;
@@ -16,8 +18,7 @@ namespace WebAPI.Controllers
         {
             _adminService = adminService;
         }
-
-        [Authorize(Roles = "Admin")]
+  
         [HttpPost("register-moderator")]
         public async Task<ActionResult<ResponseDto<StaffResponseDto>>> Register(ModeratorRegistrationRequestDto request)
         {
@@ -41,8 +42,7 @@ namespace WebAPI.Controllers
                 });
             }
         }
-
-        [Authorize(Roles = "Admin")]
+        
         [HttpPut("promote-moderator")]
         public async Task<ActionResult<ResponseDto<StaffResponseDto>>> Promote(ModeratorPromotionDto request)
         {
@@ -67,25 +67,23 @@ namespace WebAPI.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
-        [HttpGet("users-list")]
-        public async Task<ActionResult<ResponseDto<List<AccountListDto>>>> GetUsers([FromQuery] string? role)
+        [HttpGet("users")]
+        public async Task<ActionResult<ResponseDto<List<AccountResponseDto>>>> GetUsers([FromQuery] Role? role)
         {
-            var result = await _adminService.GetUsersByRoleAsync(role ?? "");
+            var result = await _adminService.GetAllUsersAsync(role);
 
-            return Ok(new ResponseDto<List<AccountListDto>>
+            return Ok(new ResponseDto<List<AccountResponseDto>>
             {
                 Status = 200,
                 Message = "Success",
                 Data = result
             });
         }
-
-        [Authorize(Roles = "Admin")]
+        
         [HttpGet("user-by-email")]
-        public async Task<ActionResult<ResponseDto<AccountListDto>>> GetByEmail([FromQuery] string email)
+        public async Task<ActionResult<ResponseDto<AccountResponseDto>>> GetByEmail([FromQuery] string email)
         {
-            var user = await _adminService.GetUserByEmailAsync(email);
+            var user = await _adminService.GetUserAsync(email);
 
             if (user == null)
             {
@@ -97,15 +95,14 @@ namespace WebAPI.Controllers
                 });
             }
 
-            return Ok(new ResponseDto<AccountListDto>
+            return Ok(new ResponseDto<AccountResponseDto>
             {
                 Status = 200,
                 Message = "Success",
                 Data = user
             });
         }
-
-        [Authorize(Roles = "Admin")]
+        
         [HttpDelete("delete-account")]
         public async Task<ActionResult<ResponseDto<string>>> Delete([FromQuery] string email)
         {

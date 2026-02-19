@@ -83,7 +83,8 @@ namespace Application
                 Name = request.Name,
                 Email = request.Email,
                 Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
-                AdmissionStatus = AdmissionStatus.Pending,
+                Role = Role.User,
+                AdmissionStatus = AdmissionStatus.Pending
             };
             await _accountRepository.AddAsync(user);
             return GenerateJwtToken(user);

@@ -26,7 +26,7 @@ namespace Application
                 Name = request.Name,
                 Email = request.Email,
                 Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
-                Role = StaffRole.Moderator
+                Role = Role.Moderator
             };
             await _accountRepository.AddAsync(user);
 
@@ -52,12 +52,12 @@ namespace Application
                 throw new InvalidOperationException("User is not a moderator.");
             }
 
-            if (staffUser.Role == StaffRole.Admin)
+            if (staffUser.Role == Role.Admin)
             {
                 throw new InvalidOperationException("User is already admin.");
             }
 
-            staffUser.Role = StaffRole.Admin;
+            staffUser.Role = Role.Admin;
 
             await _accountRepository.UpdateAsync(staffUser);
 
@@ -71,48 +71,33 @@ namespace Application
 
         }
 
-        public async Task<List<AccountListDto>> GetUsersByRoleAsync(string role)
+        public async Task<List<AccountResponseDto>> GetAllUsersAsync(Role? role)
         {
-            var users = await _accountRepository.GetAllAsync();
+            List<Account> users = role.HasValue
+                ? await _accountRepository.GetAllAsync(role.Value)
+                : await _accountRepository.GetAllAsync();
 
-            if (!string.IsNullOrEmpty(role))
-            {
-                users = users.Where(u =>
-                    u is Staff staff && staff.Role.ToString().Equals(role, StringComparison.OrdinalIgnoreCase)
-                    || (role == "Requester" && u is Requester)
-                ).ToList();
-            }
-
-            return users.Select(u => new AccountListDto
+            return users.Select(u => new AccountResponseDto
             {
                 Name = u.Name,
                 Email = u.Email,
-                Role = u switch
-                {
-                    Staff s => s.Role.ToString(),
-                    Requester => "Requester",
-                    _ => "Unknown"
-                }
+                Role = u.Role.ToString()
             }).ToList();
         }
 
-        public async Task<AccountListDto?> GetUserByEmailAsync(string email)
+
+        public async Task<AccountResponseDto?> GetUserAsync(string email)
         {
-            var user = await _accountRepository.GetAsync(email);
+            Account? user = await _accountRepository.GetAsync(email);
 
             if (user == null)
                 return null;
 
-            return new AccountListDto
+            return new AccountResponseDto
             {
                 Name = user.Name,
                 Email = user.Email,
-                Role = user switch
-                {
-                    Staff s => s.Role.ToString(),
-                    Requester => "Requester",
-                    _ => "Unknown"
-                }
+                Role = user.Role.ToString()
             };
         }
 

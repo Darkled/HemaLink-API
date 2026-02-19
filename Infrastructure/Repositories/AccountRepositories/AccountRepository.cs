@@ -1,5 +1,6 @@
 ﻿using Domain.Interfaces.Repositories;
 using Domain.Models;
+using Domain.Models.Enums;
 using Infrastructure.Repository;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,17 +20,18 @@ namespace Infrastructure.Repositories.UserRepositories
                 .FirstOrDefaultAsync(u => u.Email == email);
         }
 
-        public async Task<List<T>> GetAllAsync()
+        public new async Task<List<T>> GetAllAsync()
         {
             return await _dbContext.Set<T>()
                 .Where(u => u.IsActive)
                 .ToListAsync();
         }
 
-        public async Task<List<T>> GetAllAsync(string role)
+        public async Task<List<T>> GetAllAsync(Role role)
         {
             return await _dbContext.Set<T>()
                 .Where(u => u.IsActive)
+                .Where(u => u.Role == role)
                 .ToListAsync();
         }
 
