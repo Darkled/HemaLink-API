@@ -18,11 +18,11 @@ namespace Application
 
         public async Task<Result<AccountResponseDto>> RegisterModeratorAsync(ModeratorRegistrationRequestDto request)
         {
-            var existingUser = await _accountRepository.GetAsync(request.Email);
+            Account? existingUser = await _accountRepository.GetAsync(request.Email);
             if (existingUser != null)
                 return Result<AccountResponseDto>.Fail("This email is already used.");
 
-            var user = new Staff
+            Staff user = new Staff
             {
                 Name = request.Name,
                 Email = request.Email,
@@ -32,7 +32,7 @@ namespace Application
 
             await _accountRepository.AddAsync(user);
 
-            var response = new AccountResponseDto
+            AccountResponseDto response = new AccountResponseDto
             {
                 Id = user.Id,
                 Name = user.Name,
@@ -45,7 +45,7 @@ namespace Application
 
         public async Task<Result<AccountResponseDto>> PromoteModeratorAsync(ModeratorPromotionDto request)
         {
-            var user = await _accountRepository.GetAsync(request.Email);
+            Account? user = await _accountRepository.GetAsync(request.Email);
 
             if (user == null)
                 return Result<AccountResponseDto>.Fail("User not found.");
@@ -59,7 +59,7 @@ namespace Application
             staffUser.Role = Role.Admin;
             await _accountRepository.UpdateAsync(staffUser);
 
-            var response = new AccountResponseDto
+            AccountResponseDto response = new AccountResponseDto
             {
                 Id = staffUser.Id,
                 Name = staffUser.Name,
@@ -89,12 +89,12 @@ namespace Application
 
         public async Task<Result<AccountResponseDto>> GetUserAsync(int id)
         {
-            var user = await _accountRepository.GetAsync(id);
+            Account? user = await _accountRepository.GetAsync(id);
 
             if (user == null)
                 return Result<AccountResponseDto>.Fail("User not found.");
 
-            var response = new AccountResponseDto
+            AccountResponseDto response = new AccountResponseDto
             {
                 Id = user.Id,
                 Name = user.Name,
@@ -107,12 +107,12 @@ namespace Application
 
         public async Task<Result<AccountResponseDto>> GetUserAsync(string email)
         {
-            var user = await _accountRepository.GetAsync(email);
+            Account? user = await _accountRepository.GetAsync(email);
 
             if (user == null)
                 return Result<AccountResponseDto>.Fail("User not found.");
 
-            var response = new AccountResponseDto
+            AccountResponseDto response = new AccountResponseDto
             {
                 Id = user.Id,
                 Name = user.Name,
@@ -123,9 +123,12 @@ namespace Application
             return Result<AccountResponseDto>.Ok(response);
         }
 
-        public async Task<Result<bool>> DeleteAccountAsync(int id)
+        public async Task<Result<bool>> DeleteAccountAsync(int id, int currentId)
         {
-            var user = await _accountRepository.GetAsync(id);
+            if (id == currentId)
+                return Result<bool>.Fail("You cannot delete your own account.");
+
+            Account? user = await _accountRepository.GetAsync(id);
 
             if (user == null)
                 return Result<bool>.Fail("User not found.");

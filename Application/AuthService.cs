@@ -49,7 +49,7 @@ namespace Application
 
         public async Task<Result<string>> LoginAsync(LoginRequestDto request)
         {
-            var user = await _accountRepository.GetAsync(request.Email);
+            Account? user = await _accountRepository.GetAsync(request.Email);
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
                 return Result<string>.Fail("Invalid email or password.");
@@ -63,17 +63,17 @@ namespace Application
                     return Result<string>.Fail("Requester account has been rejected.");
             }
 
-            var token = GenerateJwtToken(user);
+            string token = GenerateJwtToken(user);
             return Result<string>.Ok(token);
         }
 
         public async Task<Result<string>> RegisterRequesterAsync(RequesterRegistrationRequestDto request)
         {
-            var existingUser = await _accountRepository.GetAsync(request.Email);
+            Account? existingUser = await _accountRepository.GetAsync(request.Email);
             if (existingUser != null)
                 return Result<string>.Fail("This mail is already used.");
 
-            var user = new Requester
+            Requester user = new Requester
             {
                 Name = request.Name,
                 Email = request.Email,
@@ -84,7 +84,7 @@ namespace Application
 
             await _accountRepository.AddAsync(user);
 
-            var token = GenerateJwtToken(user);
+            string token = GenerateJwtToken(user);
             return Result<string>.Ok(token);
         }
     }

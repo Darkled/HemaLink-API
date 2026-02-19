@@ -11,6 +11,6 @@ namespace Application.Interfaces
         Task<Result<List<AccountResponseDto>>> GetAllUsersAsync(Role? role);
         Task<Result<AccountResponseDto>> GetUserAsync(int id);
         Task<Result<AccountResponseDto>> GetUserAsync(string email);
-        Task<Result<bool>> DeleteAccountAsync(int id);
+        Task<Result<bool>> DeleteAccountAsync(int id, int currentId);
     }
 }

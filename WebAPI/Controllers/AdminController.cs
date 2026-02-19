@@ -5,6 +5,7 @@ using Application.Models.Responses;
 using Domain.Models.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace WebAPI.Controllers
 {
@@ -75,10 +76,14 @@ namespace WebAPI.Controllers
         [HttpDelete("users/{id}")]
         public async Task<ActionResult<ResponseDto<string>>> DeleteUser(int id)
         {
-            Result<bool> result = await _adminService.DeleteAccountAsync(id);
+            int currentUserId = int.Parse(
+                User.FindFirst(ClaimTypes.NameIdentifier)!.Value
+            );
+
+            Result<bool> result = await _adminService.DeleteAccountAsync(id, currentUserId);
 
             if (!result.Success)
-                return NotFound(ResponseDto<string>.Fail(result.Error));
+                return BadRequest(ResponseDto<string>.Fail(result.Error));
 
             return Ok(ResponseDto<string>.Ok(null, "Account deleted successfully"));
         }
