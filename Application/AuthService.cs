@@ -24,9 +24,10 @@ namespace Application
 
         private string GenerateJwtToken(Account user)
         {
-            var securityPassword = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_config["Authentication:SecretForKey"]!));
+            var securityPassword = new SymmetricSecurityKey(
+                Encoding.ASCII.GetBytes(_config["Authentication:SecretForKey"]!));
 
-            SigningCredentials signature = new SigningCredentials(securityPassword, SecurityAlgorithms.HmacSha256);
+            var signature = new SigningCredentials(securityPassword, SecurityAlgorithms.HmacSha256);
 
             var claimsForToken = new List<Claim>
             {
@@ -46,39 +47,33 @@ namespace Application
             return new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
         }
 
-        public async Task<string> LoginAsync(LoginRequestDto request)
+        public async Task<Result<string>> LoginAsync(LoginRequestDto request)
         {
-            Account? user = await _accountRepository.GetAsync(request.Email);
-            if (user == null ||
-                !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
-            {
-                throw new UnauthorizedAccessException("Invalid email or password.");
-            }
+            var user = await _accountRepository.GetAsync(request.Email);
+
+            if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
+                return Result<string>.Fail("Invalid email or password.");
 
             if (user is Requester requester)
             {
-
                 if (requester.AdmissionStatus == AdmissionStatus.Pending)
-                {
-                    throw new UnauthorizedAccessException("Requester account is not accepted yet.");
-                }
+                    return Result<string>.Fail("Requester account is not accepted yet.");
+
                 if (requester.AdmissionStatus == AdmissionStatus.Rejected)
-                {
-                    throw new UnauthorizedAccessException("Requester account has been rejected.");
-                }
+                    return Result<string>.Fail("Requester account has been rejected.");
             }
 
-            return GenerateJwtToken(user);
+            var token = GenerateJwtToken(user);
+            return Result<string>.Ok(token);
         }
 
-        public async Task<string> RegisterRequesterAsync(RequesterRegistrationRequestDto request)
+        public async Task<Result<string>> RegisterRequesterAsync(RequesterRegistrationRequestDto request)
         {
-            if (await _accountRepository.GetAsync(request.Email) != null)
-            {
-                throw new InvalidOperationException("This mail is already used.");
-            }
+            var existingUser = await _accountRepository.GetAsync(request.Email);
+            if (existingUser != null)
+                return Result<string>.Fail("This mail is already used.");
 
-            Requester user = new Requester
+            var user = new Requester
             {
                 Name = request.Name,
                 Email = request.Email,
@@ -86,8 +81,11 @@ namespace Application
                 Role = Role.User,
                 AdmissionStatus = AdmissionStatus.Pending
             };
+
             await _accountRepository.AddAsync(user);
-            return GenerateJwtToken(user);
+
+            var token = GenerateJwtToken(user);
+            return Result<string>.Ok(token);
         }
     }
 }

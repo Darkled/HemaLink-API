@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/admin")]
     [ApiController]
     [Authorize(Roles = "Admin")]
     public class AdminController : ControllerBase
@@ -20,101 +20,67 @@ namespace WebAPI.Controllers
             _adminService = adminService;
         }
 
-        [HttpPost("register-moderator")]
-        public async Task<ActionResult<ResponseDto<StaffResponseDto>>> Register(ModeratorRegistrationRequestDto request)
+        [HttpPost("moderators")]
+        public async Task<ActionResult<ResponseDto<AccountResponseDto>>> RegisterModerator([FromBody] ModeratorRegistrationRequestDto request)
         {
-            var result = await _adminService.RegisterModeratorAsync(request);
+            Result<AccountResponseDto> result = await _adminService.RegisterModeratorAsync(request);
 
             if (!result.Success)
-                return BadRequest(new ResponseDto<string>
-                {
-                    Status = 400,
-                    Message = result.Error,
-                    Data = null
-                });
+                return BadRequest(ResponseDto<AccountResponseDto>.Fail(result.Error));
 
-            return Ok(new ResponseDto<StaffResponseDto>
-            {
-                Status = 200,
-                Message = "Moderator registered successfully",
-                Data = result.Data
-            });
+            return Ok(ResponseDto<AccountResponseDto>.Ok(result.Data!, "Moderator registered successfully"));
         }
 
-        [HttpPut("promote-moderator")]
-        public async Task<ActionResult<ResponseDto<StaffResponseDto>>> Promote(ModeratorPromotionDto request)
+        [HttpPut("moderators/promote")]
+        public async Task<ActionResult<ResponseDto<AccountResponseDto>>> PromoteModerator([FromBody] ModeratorPromotionDto request)
         {
-            var result = await _adminService.PromoteModeratorAsync(request);
+            Result<AccountResponseDto> result = await _adminService.PromoteModeratorAsync(request);
 
             if (!result.Success)
-                return BadRequest(new ResponseDto<string>
-                {
-                    Status = 400,
-                    Message = result.Error,
-                    Data = null
-                });
+                return BadRequest(ResponseDto<AccountResponseDto>.Fail(result.Error));
 
-            return Ok(new ResponseDto<StaffResponseDto>
-            {
-                Status = 200,
-                Message = "Moderator promoted successfully",
-                Data = result.Data
-            });
+            return Ok(ResponseDto<AccountResponseDto>.Ok(result.Data!, "Moderator promoted successfully"));
         }
 
         [HttpGet("users")]
         public async Task<ActionResult<ResponseDto<List<AccountResponseDto>>>> GetUsers([FromQuery] Role? role)
         {
-            var result = await _adminService.GetAllUsersAsync(role);
+            Result<List<AccountResponseDto>> result = await _adminService.GetAllUsersAsync(role);
 
-            return Ok(new ResponseDto<List<AccountResponseDto>>
-            {
-                Status = 200,
-                Message = "Success",
-                Data = result.Data
-            });
+            return Ok(ResponseDto<List<AccountResponseDto>>.Ok(result.Data!, "Users retrieved successfully"));
         }
 
-        [HttpGet("user-by-email")]
-        public async Task<ActionResult<ResponseDto<AccountResponseDto>>> GetByEmail([FromQuery] string email)
+        [HttpGet("user/{id}")]
+        public async Task<ActionResult<ResponseDto<AccountResponseDto>>> GetUserById([FromRoute] int id)
         {
-            var result = await _adminService.GetUserAsync(email);
+            Result<AccountResponseDto> result = await _adminService.GetUserAsync(id);
 
             if (!result.Success)
-                return NotFound(new ResponseDto<string>
-                {
-                    Status = 404,
-                    Message = result.Error,
-                    Data = null
-                });
+                return NotFound(ResponseDto<AccountResponseDto>.Fail(result.Error));
 
-            return Ok(new ResponseDto<AccountResponseDto>
-            {
-                Status = 200,
-                Message = "Success",
-                Data = result.Data
-            });
+            return Ok(ResponseDto<AccountResponseDto>.Ok(result.Data!, "User retrieved successfully"));
         }
 
-        [HttpDelete("delete-account")]
-        public async Task<ActionResult<ResponseDto<string>>> Delete([FromQuery] string email)
+        [HttpGet("user/email")]
+        public async Task<ActionResult<ResponseDto<AccountResponseDto>>> GetUserByEmail([FromQuery] string email)
         {
-            var result = await _adminService.DeleteAccountAsync(email);
+            Result<AccountResponseDto> result = await _adminService.GetUserAsync(email);
 
             if (!result.Success)
-                return NotFound(new ResponseDto<string>
-                {
-                    Status = 404,
-                    Message = result.Error,
-                    Data = null
-                });
+                return NotFound(ResponseDto<AccountResponseDto>.Fail(result.Error));
 
-            return Ok(new ResponseDto<string>
-            {
-                Status = 200,
-                Message = "Account deleted successfully",
-                Data = null
-            });
+            return Ok(ResponseDto<AccountResponseDto>.Ok(result.Data!, "User retrieved successfully"));
+        }
+
+        [HttpDelete("users/{id}")]
+        public async Task<ActionResult<ResponseDto<string>>> DeleteUser(int id)
+        {
+            Result<bool> result = await _adminService.DeleteAccountAsync(id);
+
+            if (!result.Success)
+                return NotFound(ResponseDto<string>.Fail(result.Error));
+
+            return Ok(ResponseDto<string>.Ok(null, "Account deleted successfully"));
         }
     }
 }

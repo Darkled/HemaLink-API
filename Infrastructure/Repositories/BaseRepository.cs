@@ -18,7 +18,7 @@ namespace Infrastructure.Repository
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<T?> GetByIdAsync(int id)
+        public async Task<T?> GetAsync(int id)
         {
             return await _dbContext.Set<T>().FindAsync(id);
         }

@@ -16,11 +16,11 @@ namespace Application
             _accountRepository = accountRepository;
         }
 
-        public async Task<Result<StaffResponseDto>> RegisterModeratorAsync(ModeratorRegistrationRequestDto request)
+        public async Task<Result<AccountResponseDto>> RegisterModeratorAsync(ModeratorRegistrationRequestDto request)
         {
             var existingUser = await _accountRepository.GetAsync(request.Email);
             if (existingUser != null)
-                return Result<StaffResponseDto>.Fail("This email is already used.");
+                return Result<AccountResponseDto>.Fail("This email is already used.");
 
             var user = new Staff
             {
@@ -32,7 +32,7 @@ namespace Application
 
             await _accountRepository.AddAsync(user);
 
-            var response = new StaffResponseDto
+            var response = new AccountResponseDto
             {
                 Id = user.Id,
                 Name = user.Name,
@@ -40,26 +40,26 @@ namespace Application
                 Role = user.Role.ToString()
             };
 
-            return Result<StaffResponseDto>.Ok(response);
+            return Result<AccountResponseDto>.Ok(response);
         }
 
-        public async Task<Result<StaffResponseDto>> PromoteModeratorAsync(ModeratorPromotionDto request)
+        public async Task<Result<AccountResponseDto>> PromoteModeratorAsync(ModeratorPromotionDto request)
         {
             var user = await _accountRepository.GetAsync(request.Email);
 
             if (user == null)
-                return Result<StaffResponseDto>.Fail("User not found.");
+                return Result<AccountResponseDto>.Fail("User not found.");
 
             if (user is not Staff staffUser)
-                return Result<StaffResponseDto>.Fail("User is not a moderator.");
+                return Result<AccountResponseDto>.Fail("User is not a moderator.");
 
             if (staffUser.Role == Role.Admin)
-                return Result<StaffResponseDto>.Fail("User is already admin.");
+                return Result<AccountResponseDto>.Fail("User is already admin.");
 
             staffUser.Role = Role.Admin;
             await _accountRepository.UpdateAsync(staffUser);
 
-            var response = new StaffResponseDto
+            var response = new AccountResponseDto
             {
                 Id = staffUser.Id,
                 Name = staffUser.Name,
@@ -67,23 +67,42 @@ namespace Application
                 Role = staffUser.Role.ToString()
             };
 
-            return Result<StaffResponseDto>.Ok(response);
+            return Result<AccountResponseDto>.Ok(response);
         }
 
         public async Task<Result<List<AccountResponseDto>>> GetAllUsersAsync(Role? role)
         {
-            var users = role.HasValue
+            List<Account> users = role.HasValue
                 ? await _accountRepository.GetAllAsync(role.Value)
                 : await _accountRepository.GetAllAsync();
 
-            var response = users.Select(u => new AccountResponseDto
+            List<AccountResponseDto> response = users.Select(u => new AccountResponseDto
             {
+                Id = u.Id,
                 Name = u.Name,
                 Email = u.Email,
                 Role = u.Role.ToString()
             }).ToList();
 
             return Result<List<AccountResponseDto>>.Ok(response);
+        }
+
+        public async Task<Result<AccountResponseDto>> GetUserAsync(int id)
+        {
+            var user = await _accountRepository.GetAsync(id);
+
+            if (user == null)
+                return Result<AccountResponseDto>.Fail("User not found.");
+
+            var response = new AccountResponseDto
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Email = user.Email,
+                Role = user.Role.ToString()
+            };
+
+            return Result<AccountResponseDto>.Ok(response);
         }
 
         public async Task<Result<AccountResponseDto>> GetUserAsync(string email)
@@ -95,6 +114,7 @@ namespace Application
 
             var response = new AccountResponseDto
             {
+                Id = user.Id,
                 Name = user.Name,
                 Email = user.Email,
                 Role = user.Role.ToString()
@@ -103,9 +123,9 @@ namespace Application
             return Result<AccountResponseDto>.Ok(response);
         }
 
-        public async Task<Result<bool>> DeleteAccountAsync(string email)
+        public async Task<Result<bool>> DeleteAccountAsync(int id)
         {
-            var user = await _accountRepository.GetAsync(email);
+            var user = await _accountRepository.GetAsync(id);
 
             if (user == null)
                 return Result<bool>.Fail("User not found.");

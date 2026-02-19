@@ -5,11 +5,12 @@ using Application.Models;
 
 namespace WebAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/auth")]
     [ApiController]
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+
         public AuthController(IAuthService authService)
         {
             _authService = authService;
@@ -18,49 +19,23 @@ namespace WebAPI.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<ResponseDto<string>>> Login([FromBody] LoginRequestDto request)
         {
-            try
-            {
-                string token = await _authService.LoginAsync(request);
-                return Ok(new ResponseDto<string>
-                {
-                    Status = 200,
-                    Message = "Success",
-                    Data = token
-                });
-            }
-            catch (UnauthorizedAccessException exception)
-            {
-                return Unauthorized(new ResponseDto<string>
-                {
-                    Status = 401,
-                    Message = exception.Message,
-                    Data = null
-                });
-            }
+            Result<string> result = await _authService.LoginAsync(request);
+
+            if (!result.Success)
+                return Unauthorized(ResponseDto<string>.Fail(result.Error));
+
+            return Ok(ResponseDto<string>.Ok(result.Data!, "Login successful"));
         }
 
-        [HttpPost("register-requester")]
-        public async Task<ActionResult<ResponseDto<string>>> Register(RequesterRegistrationRequestDto request)
+        [HttpPost("register")]
+        public async Task<ActionResult<ResponseDto<string>>> Register([FromBody] RequesterRegistrationRequestDto request)
         {
-            try
-            {
-                string token = await _authService.RegisterRequesterAsync(request);
-                return Ok(new ResponseDto<string>
-                {
-                    Status = 200,
-                    Message = "Success",
-                    Data = token
-                });
-            }
-            catch (InvalidOperationException exception)
-            {
-                return BadRequest(new ResponseDto<string>
-                {
-                    Status = 400,
-                    Message = exception.Message,
-                    Data = null
-                });
-            }
+            Result<string> result = await _authService.RegisterRequesterAsync(request);
+
+            if (!result.Success)
+                return BadRequest(ResponseDto<string>.Fail(result.Error));
+
+            return Ok(ResponseDto<string>.Ok(result.Data!, "Registration successful"));
         }
     }
 }
