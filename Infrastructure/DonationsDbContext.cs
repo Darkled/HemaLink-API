@@ -58,6 +58,10 @@ namespace Infrastructure
                 .HasValue<Staff>("Staff")
                 .HasValue<Requester>("Requester");
 
+            modelBuilder.Entity<Account>()
+                    .Property(a => a.Role)
+                    .HasConversion<string>();
+
             base.OnModelCreating(modelBuilder);
         }
     }

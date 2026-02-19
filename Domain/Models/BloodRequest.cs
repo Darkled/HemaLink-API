@@ -12,7 +12,7 @@ namespace Domain.Models
         public int RequesterId { get; set; }
         public required Requester Requester { get; set; }
         public required ICollection<BloodType> BloodTypesNeeded { get; set; }
-        public required DateTime RequestedOn { get; set; } = DateTime.UtcNow;
+        public DateTime RequestedOn { get; set; } = DateTime.UtcNow;
         public DateTime? FulfilledOn { get; set; }
         public required int TargetUnits {  get; set; }
         public required int RemainingUnits { get; set; }

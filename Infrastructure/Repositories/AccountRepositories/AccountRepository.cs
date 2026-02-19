@@ -13,6 +13,13 @@ namespace Infrastructure.Repositories.UserRepositories
 
         }
 
+        public new async Task<T?> GetAsync(int id)
+        {
+            return await _dbContext.Set<T>()
+                .Where(u => u.IsActive)
+                .FirstOrDefaultAsync(u => u.Id == id);
+        }
+
         public async Task<T?> GetAsync(string email)
         {
             return await _dbContext.Set<T>()
