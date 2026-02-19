@@ -6,12 +6,10 @@ namespace Application.Interfaces
 {
     public interface IAdminService
     {
-        Task<StaffResponseDto> RegisterModeratorAsync(ModeratorRegistrationRequestDto request);
-        Task<StaffResponseDto> PromoteModeratorAsync(ModeratorPromotionDto request);
-        Task<List<AccountResponseDto>> GetAllUsersAsync(Role? role);
-        Task<AccountResponseDto?> GetUserAsync(string email);
-        Task<bool> DeleteAccountAsync(string email);
-
-
+        Task<Result<StaffResponseDto>> RegisterModeratorAsync(ModeratorRegistrationRequestDto request);
+        Task<Result<StaffResponseDto>> PromoteModeratorAsync(ModeratorPromotionDto request);
+        Task<Result<List<AccountResponseDto>>> GetAllUsersAsync(Role? role);
+        Task<Result<AccountResponseDto>> GetUserAsync(string email);
+        Task<Result<bool>> DeleteAccountAsync(string email);
     }
 }

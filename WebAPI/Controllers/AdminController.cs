@@ -14,57 +14,52 @@ namespace WebAPI.Controllers
     public class AdminController : ControllerBase
     {
         private readonly IAdminService _adminService;
+
         public AdminController(IAdminService adminService)
         {
             _adminService = adminService;
         }
-  
+
         [HttpPost("register-moderator")]
         public async Task<ActionResult<ResponseDto<StaffResponseDto>>> Register(ModeratorRegistrationRequestDto request)
         {
-            try
-            {
-                StaffResponseDto response = await _adminService.RegisterModeratorAsync(request);
-                return Ok(new ResponseDto<StaffResponseDto>
-                {
-                    Status = 200,
-                    Message = "Success",
-                    Data = response
-                });
-            }
-            catch (InvalidOperationException exception)
-            {
+            var result = await _adminService.RegisterModeratorAsync(request);
+
+            if (!result.Success)
                 return BadRequest(new ResponseDto<string>
                 {
                     Status = 400,
-                    Message = exception.Message,
+                    Message = result.Error,
                     Data = null
                 });
-            }
+
+            return Ok(new ResponseDto<StaffResponseDto>
+            {
+                Status = 200,
+                Message = "Moderator registered successfully",
+                Data = result.Data
+            });
         }
-        
+
         [HttpPut("promote-moderator")]
         public async Task<ActionResult<ResponseDto<StaffResponseDto>>> Promote(ModeratorPromotionDto request)
         {
-            try
-            {
-                StaffResponseDto response = await _adminService.PromoteModeratorAsync(request);
-                return Ok(new ResponseDto<StaffResponseDto>
-                {
-                    Status = 200,
-                    Message = "Success",
-                    Data = response
-                });
-            }
-            catch (InvalidOperationException exception)
-            {
+            var result = await _adminService.PromoteModeratorAsync(request);
+
+            if (!result.Success)
                 return BadRequest(new ResponseDto<string>
                 {
                     Status = 400,
-                    Message = exception.Message,
+                    Message = result.Error,
                     Data = null
                 });
-            }
+
+            return Ok(new ResponseDto<StaffResponseDto>
+            {
+                Status = 200,
+                Message = "Moderator promoted successfully",
+                Data = result.Data
+            });
         }
 
         [HttpGet("users")]
@@ -76,56 +71,50 @@ namespace WebAPI.Controllers
             {
                 Status = 200,
                 Message = "Success",
-                Data = result
+                Data = result.Data
             });
         }
-        
+
         [HttpGet("user-by-email")]
         public async Task<ActionResult<ResponseDto<AccountResponseDto>>> GetByEmail([FromQuery] string email)
         {
-            var user = await _adminService.GetUserAsync(email);
+            var result = await _adminService.GetUserAsync(email);
 
-            if (user == null)
-            {
+            if (!result.Success)
                 return NotFound(new ResponseDto<string>
                 {
                     Status = 404,
-                    Message = "User not found",
+                    Message = result.Error,
                     Data = null
                 });
-            }
 
             return Ok(new ResponseDto<AccountResponseDto>
             {
                 Status = 200,
                 Message = "Success",
-                Data = user
+                Data = result.Data
             });
         }
-        
+
         [HttpDelete("delete-account")]
         public async Task<ActionResult<ResponseDto<string>>> Delete([FromQuery] string email)
         {
-            try
-            {
-                await _adminService.DeleteAccountAsync(email);
+            var result = await _adminService.DeleteAccountAsync(email);
 
-                return Ok(new ResponseDto<string>
+            if (!result.Success)
+                return NotFound(new ResponseDto<string>
                 {
-                    Status = 200,
-                    Message = "Account deleted successfully",
+                    Status = 404,
+                    Message = result.Error,
                     Data = null
                 });
-            }
-            catch (InvalidOperationException ex)
+
+            return Ok(new ResponseDto<string>
             {
-                return BadRequest(new ResponseDto<string>
-                {
-                    Status = 400,
-                    Message = ex.Message,
-                    Data = null
-                });
-            }
+                Status = 200,
+                Message = "Account deleted successfully",
+                Data = null
+            });
         }
     }
 }
