@@ -1,5 +1,6 @@
 using Application.Interfaces;
 using Application.Models.Requests;
+using Application.Models.Responses;
 using Domain.Interfaces.Repositories;
 using Domain.Models;
 using Domain.Models.Enums;
@@ -67,25 +68,32 @@ namespace Application
             return Result<string>.Ok(token);
         }
 
-        public async Task<Result<string>> RegisterRequesterAsync(RequesterRegistrationRequestDto request)
+        public async Task<Result<AccountResponseDto>> RegisterRequesterAsync(RequesterRegistrationRequestDto request)
         {
             Account? existingUser = await _accountRepository.GetAsync(request.Email);
             if (existingUser != null)
-                return Result<string>.Fail("This mail is already used.");
+                return Result<AccountResponseDto>.Fail("This email is already used.");
 
             Requester user = new Requester
             {
                 Name = request.Name,
                 Email = request.Email,
                 Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
-                Role = Role.User,
+                Role = Role.Requester,
                 AdmissionStatus = AdmissionStatus.Pending
             };
 
-            await _accountRepository.AddAsync(user);
+            Account addedUser = await _accountRepository.AddAsync(user);
 
-            string token = GenerateJwtToken(user);
-            return Result<string>.Ok(token);
+            AccountResponseDto response = new AccountResponseDto
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Email = user.Email,
+                Role = user.Role.ToString()
+            };
+
+            return Result<AccountResponseDto>.Ok(response);
         }
     }
 }

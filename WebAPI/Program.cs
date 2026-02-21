@@ -3,6 +3,7 @@ using Application.Interfaces;
 using Domain.Interfaces.Repositories;
 using Domain.Models;
 using Infrastructure;
+using Infrastructure.Repositories;
 using Infrastructure.Repositories.UserRepositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -21,6 +22,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAccountRepository<Account>, AccountRepository<Account>>();
 builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<IRequesterService, RequesterService>();
+builder.Services.AddScoped<IRequestRepository<BloodRequest>, RequestRepository<BloodRequest>>();
 
 builder.Services.AddDbContext<DonationsDbContext>(options =>
     options.UseNpgsql(builder.Configuration["ConnectionStrings:DbConnectionString"]));
@@ -62,6 +65,18 @@ builder.Services.AddAuthentication("Bearer")
         };
     }
 );
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequesterPolicy", policy =>
+        policy.RequireRole("Admin", "Moderator", "Requester"));
+
+    options.AddPolicy("ModeratorPolicy", policy =>
+        policy.RequireRole("Admin", "Moderator"));
+
+    options.AddPolicy("AdminPolicy", policy =>
+        policy.RequireRole("Admin"));
+});
 
 var app = builder.Build();
 

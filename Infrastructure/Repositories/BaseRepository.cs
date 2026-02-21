@@ -12,10 +12,11 @@ namespace Infrastructure.Repository
             _dbContext = dbContext;
         }
 
-        public async Task AddAsync(T entity)
+        public async Task<T> AddAsync(T entity)
         {
             await _dbContext.Set<T>().AddAsync(entity);
             await _dbContext.SaveChangesAsync();
+            return entity;
         }
 
         public async Task<T?> GetAsync(int id)

@@ -11,6 +11,11 @@ namespace Infrastructure
 
         }
 
+        public DbSet<Account> Accounts { get; set; }
+        public DbSet<Staff> Staff { get; set; }
+        public DbSet<Requester> Requesters { get; set; }
+        public DbSet<BloodRequest> BloodRequests { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             Staff admin = new Staff ()
@@ -37,7 +42,7 @@ namespace Infrastructure
                 Name = "Gruppe Sechs",
                 Email = "gruppesechs@mail.com",
                 Password = BCrypt.Net.BCrypt.HashPassword("gruppesechs"),
-                Role = Role.User,
+                Role = Role.Requester,
                 AdmissionStatus = AdmissionStatus.Accepted
             };
 

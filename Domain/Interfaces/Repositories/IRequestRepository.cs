@@ -5,7 +5,6 @@ namespace Domain.Interfaces.Repositories
 {
     public interface IRequestRepository<T> : IBaseRepository<T> where T : BloodRequest
     {
-        Task<List<T>> GetAsync();
-        Task<List<T>> GetAsync(BloodType bloodType);
+        Task<List<T>> GetByRequesterIdAsync(int requesterId);
     }
 }

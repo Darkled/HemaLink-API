@@ -11,7 +11,7 @@ namespace WebAPI.Controllers
 {
     [Route("api/admin")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = "AdminPolicy")]
     public class AdminController : ControllerBase
     {
         private readonly IAdminService _adminService;
@@ -21,7 +21,7 @@ namespace WebAPI.Controllers
             _adminService = adminService;
         }
 
-        [HttpPost("moderators")]
+        [HttpPost("moderator")]
         public async Task<ActionResult<ResponseDto<AccountResponseDto>>> RegisterModerator([FromBody] ModeratorRegistrationRequestDto request)
         {
             Result<AccountResponseDto> result = await _adminService.RegisterModeratorAsync(request);
@@ -29,11 +29,15 @@ namespace WebAPI.Controllers
             if (!result.Success)
                 return BadRequest(ResponseDto<AccountResponseDto>.Fail(result.Error));
 
-            return Ok(ResponseDto<AccountResponseDto>.Ok(result.Data!, "Moderator registered successfully"));
+            return CreatedAtAction(
+                nameof(GetUserById),
+                new { id = result.Data!.Id },
+                ResponseDto<AccountResponseDto>.Ok(result.Data, "Moderator registered successfully")
+            );
         }
 
-        [HttpPut("moderators/promote")]
-        public async Task<ActionResult<ResponseDto<AccountResponseDto>>> PromoteModerator([FromBody] ModeratorPromotionDto request)
+        [HttpPut("moderator/promote")]
+        public async Task<ActionResult<ResponseDto<AccountResponseDto>>> PromoteModerator([FromBody] ModeratorPromotionRequestDto request)
         {
             Result<AccountResponseDto> result = await _adminService.PromoteModeratorAsync(request);
 

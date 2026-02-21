@@ -12,16 +12,16 @@ namespace Application
             _requestRepository = requestRepository;
         }
 
-        public async Task<List<BloodRequest>> GetOpenRequestsAsync()
-        {
-            return await _requestRepository.GetAsync();
-        }
+        //public async Task<List<BloodRequest>> GetOpenRequestsAsync()
+        //{
+        //    return await _requestRepository.GetAsync();
+        //}
 
-        public async Task<List<BloodRequest>> GetOpenRequestsByBloodTypeAsync(BloodType? bloodType)
-        {
-            return bloodType == null? 
-                await _requestRepository.GetAsync() :
-                await _requestRepository.GetAsync(bloodType.Value);
-        }
+        //public async Task<List<BloodRequest>> GetOpenRequestsByBloodTypeAsync(BloodType? bloodType)
+        //{
+        //    return bloodType == null? 
+        //        await _requestRepository.GetAsync() :
+        //        await _requestRepository.GetAsync(bloodType.Value);
+        //}
     }
 }

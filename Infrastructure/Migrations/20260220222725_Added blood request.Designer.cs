@@ -3,6 +3,7 @@ using System;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DonationsDbContext))]
-    partial class DonationsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260220222725_Added blood request")]
+    partial class Addedbloodrequest
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -71,11 +74,21 @@ namespace Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<int[]>("BloodTypesNeeded")
                         .HasColumnType("integer[]");
 
                     b.Property<DateTime?>("FulfilledOn")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<double>("Latitude")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("Longitude")
+                        .HasColumnType("double precision");
 
                     b.Property<int>("RemainingUnits")
                         .HasColumnType("integer");
@@ -149,7 +162,7 @@ namespace Infrastructure.Migrations
                             Email = "gruppesechs@mail.com",
                             IsActive = true,
                             Name = "Gruppe Sechs",
-                            Password = "$2a$11$agpD1705I7KhJVDWmNQSiu59UOrvS2rB9bkReHk6PUbMpA.tWDBf.",
+                            Password = "$2a$11$R8sf7vX7CFFmkLXzZAJsDOSmyfxnCQ6IGDHQiwtyOzrmfiidOdvWW",
                             Role = "Requester",
                             AdmissionStatus = 1
                         });
@@ -168,7 +181,7 @@ namespace Infrastructure.Migrations
                             Email = "admin",
                             IsActive = true,
                             Name = "admin",
-                            Password = "$2a$11$cGYy0UtwjJO.Cckgy4xEA.PeSW8tUAFEOZYSV2cM1K6XmgHPrdFbq",
+                            Password = "$2a$11$8SI9SHMLUK.rA3NbiY0BquE0tjdYSmzUppMVv2x2INUdUxkF41.3O",
                             Role = "Admin"
                         },
                         new
@@ -177,7 +190,7 @@ namespace Infrastructure.Migrations
                             Email = "mod",
                             IsActive = true,
                             Name = "mod",
-                            Password = "$2a$11$g/.03MJNsfrnKftxCQT1j.qLxf8fTiGyTvQ7bz4/XKgdCuNq9ZIIC",
+                            Password = "$2a$11$4j2Ds7Oy3TnGHd4RSfGatOJr4/nk05ag.THPT07B/bAyDUgGEYRni",
                             Role = "Moderator"
                         });
                 });

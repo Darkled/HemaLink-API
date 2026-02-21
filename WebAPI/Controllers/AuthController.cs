@@ -2,6 +2,7 @@
 using Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Application.Models;
+using Application.Models.Responses;
 
 namespace WebAPI.Controllers
 {
@@ -30,12 +31,12 @@ namespace WebAPI.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<ResponseDto<string>>> Register([FromBody] RequesterRegistrationRequestDto request)
         {
-            Result<string> result = await _authService.RegisterRequesterAsync(request);
+            Result<AccountResponseDto> result = await _authService.RegisterRequesterAsync(request);
 
             if (!result.Success)
                 return BadRequest(ResponseDto<string>.Fail(result.Error));
 
-            return Ok(ResponseDto<string>.Ok(result.Data!, "Registration successful"));
+            return Ok(ResponseDto<AccountResponseDto>.Ok(result.Data, "Registration successful"));
         }
     }
 }

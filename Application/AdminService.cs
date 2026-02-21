@@ -30,7 +30,7 @@ namespace Application
                 Role = Role.Moderator
             };
 
-            await _accountRepository.AddAsync(user);
+            Account addedUser = await _accountRepository.AddAsync(user);
 
             AccountResponseDto response = new AccountResponseDto
             {
@@ -43,7 +43,7 @@ namespace Application
             return Result<AccountResponseDto>.Ok(response);
         }
 
-        public async Task<Result<AccountResponseDto>> PromoteModeratorAsync(ModeratorPromotionDto request)
+        public async Task<Result<AccountResponseDto>> PromoteModeratorAsync(ModeratorPromotionRequestDto request)
         {
             Account? user = await _accountRepository.GetAsync(request.Email);
 

@@ -7,7 +7,7 @@ namespace Application.Interfaces
     public interface IAdminService
     {
         Task<Result<AccountResponseDto>> RegisterModeratorAsync(ModeratorRegistrationRequestDto request);
-        Task<Result<AccountResponseDto>> PromoteModeratorAsync(ModeratorPromotionDto request);
+        Task<Result<AccountResponseDto>> PromoteModeratorAsync(ModeratorPromotionRequestDto request);
         Task<Result<List<AccountResponseDto>>> GetAllUsersAsync(Role? role);
         Task<Result<AccountResponseDto>> GetUserAsync(int id);
         Task<Result<AccountResponseDto>> GetUserAsync(string email);

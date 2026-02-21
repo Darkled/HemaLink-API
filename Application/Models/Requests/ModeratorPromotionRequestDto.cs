@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Application.Models.Requests
 {
-    public class ModeratorPromotionDto
+    public class ModeratorPromotionRequestDto
     {
 
         [Required]
