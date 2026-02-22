@@ -19,12 +19,18 @@ namespace Infrastructure.Repository
             return entity;
         }
 
-        public async Task<T?> GetAsync(int id)
+        public async Task<T> AddWithoutSavingAsync(T entity)
+        {
+            await _dbContext.Set<T>().AddAsync(entity);
+            return entity;
+        }
+
+        public virtual async Task<T?> GetAsync(int id)
         {
             return await _dbContext.Set<T>().FindAsync(id);
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync()
+        public virtual async Task<List<T>> GetAllAsync()
         {
             return await _dbContext.Set<T>().ToListAsync();
         }
@@ -33,6 +39,12 @@ namespace Infrastructure.Repository
         {
             _dbContext.Set<T>().Update(entity);
             await _dbContext.SaveChangesAsync();
+        }
+
+        public Task UpdateWithoutSavingAsync(T entity)
+        {
+            _dbContext.Set<T>().Update(entity);
+            return Task.CompletedTask;
         }
     }
 }

@@ -63,6 +63,29 @@ namespace Infrastructure.Migrations
                     b.UseTphMappingStrategy();
                 });
 
+            modelBuilder.Entity("Domain.Models.Appointment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BloodRequestId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("DonorId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BloodRequestId");
+
+                    b.HasIndex("DonorId");
+
+                    b.ToTable("Appointments");
+                });
+
             modelBuilder.Entity("Domain.Models.BloodRequest", b =>
                 {
                     b.Property<int>("Id")
@@ -70,6 +93,10 @@ namespace Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int[]>("BloodTypesNeeded")
                         .HasColumnType("integer[]");
@@ -96,7 +123,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("BloodRequests");
                 });
 
-            modelBuilder.Entity("Domain.Models.Donator", b =>
+            modelBuilder.Entity("Domain.Models.Donor", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -118,7 +145,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Donator");
+                    b.ToTable("Donors");
 
                     b.HasData(
                         new
@@ -146,7 +173,7 @@ namespace Infrastructure.Migrations
                             Email = "gruppesechs@mail.com",
                             IsActive = true,
                             Name = "Gruppe Sechs",
-                            Password = "$2a$11$dU/jEJfsw3uMJUzL9eOXVeSQ3LhCTZ9Hf10mLOAw5.KjHkK6f47si",
+                            Password = "$2a$11$ZrMDTCzm3KyDIHw6pJtPWeN3/29y1HQAdHVzuQSu0bTr1WvQPxGb2",
                             Role = "Requester",
                             AdmissionStatus = 1
                         });
@@ -165,7 +192,7 @@ namespace Infrastructure.Migrations
                             Email = "admin",
                             IsActive = true,
                             Name = "admin",
-                            Password = "$2a$11$SI/erk49fbe.0D3QvFv1pOiVajO8ZXOD1JyazCzkS8sn/N65nEC8O",
+                            Password = "$2a$11$0AN2D9itwF2iKuDleIBj4e1i47isByucMPBmshyIxz/ksfHDOzhb2",
                             Role = "Admin"
                         },
                         new
@@ -174,9 +201,28 @@ namespace Infrastructure.Migrations
                             Email = "mod",
                             IsActive = true,
                             Name = "mod",
-                            Password = "$2a$11$FVOp/xJMMUc0WEZqPo/uAOJNEhBZNLQpmHaXDicrYKczvyDTQpT2O",
+                            Password = "$2a$11$u1RBYJlBcGFlDhd47jTgNuwGU8/lSFtzTvTrqS3u2msBv.oZbCLNS",
                             Role = "Moderator"
                         });
+                });
+
+            modelBuilder.Entity("Domain.Models.Appointment", b =>
+                {
+                    b.HasOne("Domain.Models.BloodRequest", "BloodRequest")
+                        .WithMany("Appointments")
+                        .HasForeignKey("BloodRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Models.Donor", "Donor")
+                        .WithMany("Appointments")
+                        .HasForeignKey("DonorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BloodRequest");
+
+                    b.Navigation("Donor");
                 });
 
             modelBuilder.Entity("Domain.Models.BloodRequest", b =>
@@ -188,6 +234,16 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Requester");
+                });
+
+            modelBuilder.Entity("Domain.Models.BloodRequest", b =>
+                {
+                    b.Navigation("Appointments");
+                });
+
+            modelBuilder.Entity("Domain.Models.Donor", b =>
+                {
+                    b.Navigation("Appointments");
                 });
 #pragma warning restore 612, 618
         }

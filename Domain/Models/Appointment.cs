@@ -9,8 +9,8 @@ namespace Domain.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public int BloodRequestId { get; set; }
-        public required BloodRequest BloodRequest { get; set; }
-        public int DonatorId { get; set; }
-        public required Donator Donator { get; set; }
+        public BloodRequest BloodRequest { get; set; } = null!;
+        public int DonorId { get; set; }
+        public Donor Donor { get; set; } = null!;
     }
 }

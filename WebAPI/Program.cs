@@ -1,10 +1,11 @@
 using Application;
 using Application.Interfaces;
+using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
 using Domain.Models;
 using Infrastructure;
 using Infrastructure.Repositories;
-using Infrastructure.Repositories.UserRepositories;
+using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -14,17 +15,42 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+#region HttpClientFactories
+ApiClientConfiguration sendgridResilienceConfiguration = new()
+{
+    RetryCount = 3,
+    RetryAttemptInSeconds = 2,
+    DurationOfBreakInSeconds = 60,
+    HandledEventsAllowedBeforeBreaking = 5
+};
+
+builder.Services.AddHttpClient(
+    "SendGrid",
+    client =>
+    {
+        client.BaseAddress = new Uri("https://api.sendgrid.com/v3/");
+    })
+    .AddPolicyHandler(PollyResiliencePolicies.GetRetryPolicy(sendgridResilienceConfiguration))
+    .AddPolicyHandler(PollyResiliencePolicies.GetCircuitBreakerPolicy(sendgridResilienceConfiguration));
+
+#endregion
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+#region Dependency Injections
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAccountRepository<Account>, AccountRepository<Account>>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IRequesterService, RequesterService>();
-builder.Services.AddScoped<IRequestRepository<BloodRequest>, RequestRepository<BloodRequest>>();
+builder.Services.AddScoped<IBloodRequestRepository, BloodRequestRepository>();
 builder.Services.AddScoped<IRequestService, RequestService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IDonorRepository, DonorRepository>();
+builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+#endregion
 
 builder.Services.AddDbContext<DonationsDbContext>(options =>
     options.UseNpgsql(builder.Configuration["ConnectionStrings:DbConnectionString"]));

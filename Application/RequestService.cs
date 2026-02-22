@@ -1,5 +1,7 @@
 ﻿using Application.Interfaces;
+using Application.Models.Requests;
 using Application.Models.Responses;
+using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
 using Domain.Models;
 using Domain.Models.Enums;
@@ -8,10 +10,25 @@ namespace Application
 {
     public class RequestService : IRequestService
     {
-        private readonly IRequestRepository<BloodRequest> _requestRepository;
-        public RequestService(IRequestRepository<BloodRequest> requestRepository)
+        private readonly IBloodRequestRepository _requestRepository;
+        private readonly IDonorRepository _donorRepository;
+        private readonly IBloodRequestRepository _bloodRequestRepository;
+        private readonly IAppointmentRepository _appointmentRepository;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IEmailService _emailService;
+        public RequestService(IBloodRequestRepository requestRepository,
+                                IDonorRepository donorRepository,
+                                IBloodRequestRepository bloodRequestRepository,
+                                IAppointmentRepository appointmentRepository,
+                                IUnitOfWork unitOfWork,
+                                IEmailService emailService)
         {
             _requestRepository = requestRepository;
+            _donorRepository = donorRepository;
+            _bloodRequestRepository = bloodRequestRepository;
+            _appointmentRepository = appointmentRepository;
+            _unitOfWork = unitOfWork;
+            _emailService = emailService;
         }
 
         public async Task<Result<List<BloodRequestResponseDto>>> GetOpenRequestsAsync(List<BloodType> bloodTypes)
@@ -28,22 +45,100 @@ namespace Application
 
             List<BloodRequestResponseDto> requestForResponse = requests.Select(requests => new BloodRequestResponseDto
             {
+                RequestId = requests.Id,
                 RequesterName = requests.Requester!.Name,
                 BloodTypesNeeded = requests.BloodTypesNeeded?.Select(bt => bt.ToString()).ToList(),
                 RequestDate = requests.RequestDate,
                 TargetUnits = requests.TargetUnits,
                 RemainingUnits = requests.RemainingUnits,
-                RequestStatus = requests.RequestStatus.ToString()
+                RequestStatus = requests.RequestStatus.ToString(),
+                Address = requests.Address
             }).ToList();
 
             return Result<List<BloodRequestResponseDto>>.Ok(requestForResponse);
         }
 
-        //public async Task<List<BloodRequest>> GetOpenRequestsByBloodTypeAsync(BloodType? bloodType)
-        //{
-        //    return bloodType == null? 
-        //        await _requestRepository.GetAsync() :
-        //        await _requestRepository.GetAsync(bloodType.Value);
-        //}
+        // crear donante si no existe
+        // aumentar la cantidad del bloodrequest, si el bloodrequest se completa, cambiar su estado a completed
+        // crear la tabla intermedia entre bloodrequest y donor, para guardar la informacion del donor que se asigna a cada bloodrequest
+        // enviar mail a donador
+        public async Task<Result<AppointBloodRequestResponseDto>> AppointBloodRequestAsync(AppointBloodRequestRequestDto appointBloodRequestDto)
+        {
+            await _unitOfWork.BeginTransactionAsync();
+
+            try
+            {
+                Donor? donor = await _donorRepository.GetByEmailAsync(appointBloodRequestDto.DonorEmail);
+
+                if (donor == null)
+                {
+                    donor = new Donor
+                    {
+                        Name = appointBloodRequestDto.DonorName,
+                        Email = appointBloodRequestDto.DonorEmail,
+                        Phone = appointBloodRequestDto.DonorPhone
+                    };
+                    await _donorRepository.AddWithoutSavingAsync(donor);
+                }
+
+                BloodRequest? bloodRequest = await _bloodRequestRepository.GetByIdWithRequesterAsync(appointBloodRequestDto.BloodRequestId);
+
+                if (bloodRequest == null) return Result<AppointBloodRequestResponseDto>.Fail("Blood request not found.");
+                if (bloodRequest.RequestStatus != RequestStatus.Open) return Result<AppointBloodRequestResponseDto>.Fail("Blood request is not active.");
+                if (bloodRequest.RemainingUnits <= 0) return Result<AppointBloodRequestResponseDto>.Fail("No remaining units available.");
+
+                if (donor.Id != 0)
+                {
+                    bool alreadyExists = await _appointmentRepository.ExistsAsync(donor.Id, bloodRequest.Id);
+                    if (alreadyExists) return Result<AppointBloodRequestResponseDto>.Fail("You already appointed this request.");
+                }
+
+                bloodRequest.RemainingUnits--;
+                if (bloodRequest.RemainingUnits == 0) bloodRequest.RequestStatus = RequestStatus.Completed;
+
+                await _bloodRequestRepository.UpdateWithoutSavingAsync(bloodRequest);
+
+                Appointment appointment = new Appointment
+                {
+                    Donor = donor,
+                    BloodRequestId = bloodRequest.Id,
+                };
+
+                await _appointmentRepository.AddWithoutSavingAsync(appointment);
+
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
+
+                AppointBloodRequestResponseDto response = new AppointBloodRequestResponseDto
+                {
+                    BloodRequesterName = bloodRequest.Requester!.Name,
+                    BloodRequestAdress = bloodRequest.Address,
+                    RequestDate = bloodRequest.RequestDate,
+                    DonorName = donor.Name,
+                    DonorEmail = donor.Email,
+                    DonorPhone = donor.Phone,
+                };
+
+                try
+                {
+                    await _emailService.SendReservationEmailAsync(
+                        donor.Email,
+                        donor.Name,
+                        bloodRequest.Requester.Name,
+                        bloodRequest.Address,
+                        bloodRequest.RequestDate);
+                }
+                catch (Exception ex) {
+                    Console.WriteLine($"Error de SendGrid: {ex.Message}");
+                }
+
+                return Result<AppointBloodRequestResponseDto>.Ok(response);
+            }
+            catch (Exception)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
+        }
     }
 }

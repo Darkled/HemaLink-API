@@ -4,6 +4,7 @@
     {
         Open,
         Completed,
+        Expired,
         Deleted
     }
 }

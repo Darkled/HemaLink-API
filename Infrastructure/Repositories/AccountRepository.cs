@@ -4,7 +4,7 @@ using Domain.Models.Enums;
 using Infrastructure.Repository;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Repositories.UserRepositories
+namespace Infrastructure.Repositories
 {
     public class AccountRepository<T> : BaseRepository<T>, IAccountRepository<T> where T : Account
     {
@@ -13,7 +13,7 @@ namespace Infrastructure.Repositories.UserRepositories
 
         }
 
-        public new async Task<T?> GetAsync(int id)
+        public override async Task<T?> GetAsync(int id)
         {
             return await _dbContext.Set<T>()
                 .Where(u => u.IsActive)
@@ -27,7 +27,7 @@ namespace Infrastructure.Repositories.UserRepositories
                 .FirstOrDefaultAsync(u => u.Email == email);
         }
 
-        public new async Task<List<T>> GetAllAsync()
+        public override async Task<List<T>> GetAllAsync()
         {
             return await _dbContext.Set<T>()
                 .Where(u => u.IsActive)

@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DonationsDbContext))]
-    [Migration("20260220222725_Added blood request")]
-    partial class Addedbloodrequest
+    [Migration("20260222055244_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -66,6 +66,29 @@ namespace Infrastructure.Migrations
                     b.UseTphMappingStrategy();
                 });
 
+            modelBuilder.Entity("Domain.Models.Appointment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BloodRequestId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("DonorId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BloodRequestId");
+
+                    b.HasIndex("DonorId");
+
+                    b.ToTable("Appointments");
+                });
+
             modelBuilder.Entity("Domain.Models.BloodRequest", b =>
                 {
                     b.Property<int>("Id")
@@ -81,23 +104,14 @@ namespace Infrastructure.Migrations
                     b.Property<int[]>("BloodTypesNeeded")
                         .HasColumnType("integer[]");
 
-                    b.Property<DateTime?>("FulfilledOn")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<double>("Latitude")
-                        .HasColumnType("double precision");
-
-                    b.Property<double>("Longitude")
-                        .HasColumnType("double precision");
-
                     b.Property<int>("RemainingUnits")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime>("RequestDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("RequestStatus")
                         .HasColumnType("integer");
-
-                    b.Property<DateTime>("RequestedOn")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("RequesterId")
                         .HasColumnType("integer");
@@ -112,7 +126,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("BloodRequests");
                 });
 
-            modelBuilder.Entity("Domain.Models.Donator", b =>
+            modelBuilder.Entity("Domain.Models.Donor", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -134,7 +148,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Donator");
+                    b.ToTable("Donors");
 
                     b.HasData(
                         new
@@ -162,7 +176,7 @@ namespace Infrastructure.Migrations
                             Email = "gruppesechs@mail.com",
                             IsActive = true,
                             Name = "Gruppe Sechs",
-                            Password = "$2a$11$R8sf7vX7CFFmkLXzZAJsDOSmyfxnCQ6IGDHQiwtyOzrmfiidOdvWW",
+                            Password = "$2a$11$ZrMDTCzm3KyDIHw6pJtPWeN3/29y1HQAdHVzuQSu0bTr1WvQPxGb2",
                             Role = "Requester",
                             AdmissionStatus = 1
                         });
@@ -181,7 +195,7 @@ namespace Infrastructure.Migrations
                             Email = "admin",
                             IsActive = true,
                             Name = "admin",
-                            Password = "$2a$11$8SI9SHMLUK.rA3NbiY0BquE0tjdYSmzUppMVv2x2INUdUxkF41.3O",
+                            Password = "$2a$11$0AN2D9itwF2iKuDleIBj4e1i47isByucMPBmshyIxz/ksfHDOzhb2",
                             Role = "Admin"
                         },
                         new
@@ -190,9 +204,28 @@ namespace Infrastructure.Migrations
                             Email = "mod",
                             IsActive = true,
                             Name = "mod",
-                            Password = "$2a$11$4j2Ds7Oy3TnGHd4RSfGatOJr4/nk05ag.THPT07B/bAyDUgGEYRni",
+                            Password = "$2a$11$u1RBYJlBcGFlDhd47jTgNuwGU8/lSFtzTvTrqS3u2msBv.oZbCLNS",
                             Role = "Moderator"
                         });
+                });
+
+            modelBuilder.Entity("Domain.Models.Appointment", b =>
+                {
+                    b.HasOne("Domain.Models.BloodRequest", "BloodRequest")
+                        .WithMany("Appointments")
+                        .HasForeignKey("BloodRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Models.Donor", "Donor")
+                        .WithMany("Appointments")
+                        .HasForeignKey("DonorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BloodRequest");
+
+                    b.Navigation("Donor");
                 });
 
             modelBuilder.Entity("Domain.Models.BloodRequest", b =>
@@ -204,6 +237,16 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Requester");
+                });
+
+            modelBuilder.Entity("Domain.Models.BloodRequest", b =>
+                {
+                    b.Navigation("Appointments");
+                });
+
+            modelBuilder.Entity("Domain.Models.Donor", b =>
+                {
+                    b.Navigation("Appointments");
                 });
 #pragma warning restore 612, 618
         }

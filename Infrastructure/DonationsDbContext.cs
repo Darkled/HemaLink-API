@@ -10,13 +10,15 @@ namespace Infrastructure
         {
 
         }
+        public DbSet<Account> Accounts { get; set;}
+        public DbSet<Staff> Staff { get; set;}
+        public DbSet<Requester> Requesters { get; set;}
+        public DbSet<BloodRequest> BloodRequests { get; set;}
+		public DbSet<Appointment> Appointments { get; set; }
+        public DbSet<Donor> Donors { get; set; }
 
-        public DbSet<Account> Accounts { get; set; }
-        public DbSet<Staff> Staff { get; set; }
-        public DbSet<Requester> Requesters { get; set; }
-        public DbSet<BloodRequest> BloodRequests { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+		protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             Staff admin = new Staff ()
             {
@@ -46,7 +48,7 @@ namespace Infrastructure
                 AdmissionStatus = AdmissionStatus.Accepted
             };
 
-            Donator Gabriel = new Donator()
+            Donor Gabriel = new Donor()
             {
                 Id = 1,
                 Name = "Gabriel",
@@ -55,7 +57,7 @@ namespace Infrastructure
             };
 
             modelBuilder.Entity<Staff>().HasData(admin, mod);
-            modelBuilder.Entity<Donator>().HasData(Gabriel);
+            modelBuilder.Entity<Donor>().HasData(Gabriel);
             modelBuilder.Entity<Requester>().HasData(GruppeSechs);
 
             modelBuilder.Entity<Account>()
@@ -64,10 +66,20 @@ namespace Infrastructure
                 .HasValue<Requester>("Requester");
 
             modelBuilder.Entity<Account>()
-                    .Property(a => a.Role)
-                    .HasConversion<string>();
+                .Property(a => a.Role)
+                .HasConversion<string>();
 
-            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Appointment>()
+                .HasOne(a => a.Donor)
+                .WithMany(d => d.Appointments)
+                .HasForeignKey(a => a.DonorId);
+
+            modelBuilder.Entity<Appointment>()
+                .HasOne(a => a.BloodRequest)
+                .WithMany(br => br.Appointments)
+                .HasForeignKey(a => a.BloodRequestId);
+
+			base.OnModelCreating(modelBuilder);
         }
     }
 }

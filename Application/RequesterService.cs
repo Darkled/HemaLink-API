@@ -11,9 +11,9 @@ namespace Application
     public class RequesterService : IRequesterService
     {
 
-        private readonly IRequestRepository<BloodRequest> _requestRepository;
+        private readonly IBloodRequestRepository _requestRepository;
         private readonly IAccountRepository<Account> _authRepository;
-        public RequesterService(IRequestRepository<BloodRequest> requestRepository, IAccountRepository<Account> accountRepository)
+        public RequesterService(IBloodRequestRepository requestRepository, IAccountRepository<Account> accountRepository)
         {
             _requestRepository = requestRepository;
             _authRepository = accountRepository;
@@ -26,6 +26,7 @@ namespace Application
                 RequesterId = id,
                 BloodTypesNeeded = dto.BloodTypesNeeded?.ToList(),
                 TargetUnits = dto.TargetUnits,
+                Address = dto.Address,
                 RemainingUnits = dto.TargetUnits,
                 RequestDate = dto.RequestDate,
                 RequestStatus = RequestStatus.Open
@@ -37,12 +38,14 @@ namespace Application
 
             BloodRequestResponseDto responseDto = new BloodRequestResponseDto
             {
+                RequestId = created.Id,
                 RequesterName = requester!.Name,
                 BloodTypesNeeded = created.BloodTypesNeeded?.Select(bt => bt.ToString()).ToList(),
                 TargetUnits = created.TargetUnits,
                 RemainingUnits = created.RemainingUnits,
                 RequestDate = created.RequestDate,
-                RequestStatus = created.RequestStatus.ToString()
+                RequestStatus = created.RequestStatus.ToString(),
+                Address = created.Address
             };
 
             return Result<BloodRequestResponseDto>.Ok(responseDto);
@@ -55,11 +58,13 @@ namespace Application
 
             List<BloodRequestResponseDto> response = bloodRequests.Select(br => new BloodRequestResponseDto
             {
+                RequestId = br.Id,
                 RequesterName = br.Requester!.Name,
                 TargetUnits = br.TargetUnits,
                 RemainingUnits = br.RemainingUnits,
                 RequestStatus = br.RequestStatus.ToString(),
-                RequestDate = br.RequestDate
+                RequestDate = br.RequestDate,
+                Address = br.Address,
             }).ToList();
 
             return Result<List<BloodRequestResponseDto>>.Ok(response);
