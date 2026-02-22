@@ -27,7 +27,7 @@ namespace Application
                 BloodTypesNeeded = dto.BloodTypesNeeded?.ToList(),
                 TargetUnits = dto.TargetUnits,
                 RemainingUnits = dto.TargetUnits,
-                RequestedOn = DateTime.UtcNow,
+                RequestDate = dto.RequestDate,
                 RequestStatus = RequestStatus.Open
             };
 
@@ -41,7 +41,7 @@ namespace Application
                 BloodTypesNeeded = created.BloodTypesNeeded?.Select(bt => bt.ToString()).ToList(),
                 TargetUnits = created.TargetUnits,
                 RemainingUnits = created.RemainingUnits,
-                RequestedOn = created.RequestedOn,
+                RequestDate = created.RequestDate,
                 RequestStatus = created.RequestStatus.ToString()
             };
 
@@ -59,7 +59,7 @@ namespace Application
                 TargetUnits = br.TargetUnits,
                 RemainingUnits = br.RemainingUnits,
                 RequestStatus = br.RequestStatus.ToString(),
-                RequestedOn = br.RequestedOn
+                RequestDate = br.RequestDate
             }).ToList();
 
             return Result<List<BloodRequestResponseDto>>.Ok(response);

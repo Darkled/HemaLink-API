@@ -24,6 +24,7 @@ builder.Services.AddScoped<IAccountRepository<Account>, AccountRepository<Accoun
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IRequesterService, RequesterService>();
 builder.Services.AddScoped<IRequestRepository<BloodRequest>, RequestRepository<BloodRequest>>();
+builder.Services.AddScoped<IRequestService, RequestService>();
 
 builder.Services.AddDbContext<DonationsDbContext>(options =>
     options.UseNpgsql(builder.Configuration["ConnectionStrings:DbConnectionString"]));
