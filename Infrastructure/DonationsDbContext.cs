@@ -24,7 +24,7 @@ namespace Infrastructure
             {
                 Id = 1,
                 Name = "admin",
-                Email = "admin",
+                Email = "admin@email.com",
                 Password = BCrypt.Net.BCrypt.HashPassword("admin"),
                 Role = Role.Admin
             };
@@ -33,32 +33,32 @@ namespace Infrastructure
             {
                 Id = 2,
                 Name = "mod",
-                Email = "mod",
+                Email = "mod@email.com",
                 Password = BCrypt.Net.BCrypt.HashPassword("mod"),
                 Role = Role.Moderator
             };
 
-            Requester GruppeSechs = new Requester()
+            Requester requester = new Requester()
             {
                 Id = 3,
-                Name = "Gruppe Sechs",
-                Email = "gruppesechs@mail.com",
-                Password = BCrypt.Net.BCrypt.HashPassword("gruppesechs"),
+                Name = "requester",
+                Email = "requester@email.com",
+                Password = BCrypt.Net.BCrypt.HashPassword("requester"),
                 Role = Role.Requester,
                 AdmissionStatus = AdmissionStatus.Accepted
             };
 
-            Donor Gabriel = new Donor()
+            Donor donor = new Donor()
             {
                 Id = 1,
-                Name = "Gabriel",
-                Email = "gabriel@mail.com",
+                Name = "donor",
+                Email = "donor@email.com",
                 Phone = "1234567890123"
             };
 
             modelBuilder.Entity<Staff>().HasData(admin, mod);
-            modelBuilder.Entity<Donor>().HasData(Gabriel);
-            modelBuilder.Entity<Requester>().HasData(GruppeSechs);
+            modelBuilder.Entity<Donor>().HasData(donor);
+            modelBuilder.Entity<Requester>().HasData(requester);
 
             modelBuilder.Entity<Account>()
                 .HasDiscriminator<string>("AccountType")
