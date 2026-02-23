@@ -34,7 +34,11 @@ builder.Services.AddHttpClient(
     .AddPolicyHandler(PollyResiliencePolicies.GetCircuitBreakerPolicy(sendgridResilienceConfiguration));
 
 #endregion
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -50,6 +54,8 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IDonorRepository, DonorRepository>();
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IModeratorService, ModeratorService>();
+builder.Services.AddScoped<IRequesterRepository, RequesterRepository>();
 #endregion
 
 builder.Services.AddDbContext<DonationsDbContext>(options =>
@@ -95,9 +101,6 @@ builder.Services.AddAuthentication("Bearer")
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("RequesterPolicy", policy =>
-        policy.RequireRole("Admin", "Moderator", "Requester"));
-
     options.AddPolicy("ModeratorPolicy", policy =>
         policy.RequireRole("Admin", "Moderator"));
 

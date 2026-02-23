@@ -5,6 +5,6 @@
         Open,
         Completed,
         Expired,
-        Deleted
+        Cancelled
     }
 }

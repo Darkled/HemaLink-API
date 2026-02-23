@@ -57,14 +57,14 @@ namespace Application
                 return Result<AccountResponseDto>.Fail("User is already admin.");
 
             staffUser.Role = Role.Admin;
-            await _accountRepository.UpdateAsync(staffUser);
+            Account updatedUser = await _accountRepository.UpdateAsync(staffUser);
 
             AccountResponseDto response = new AccountResponseDto
             {
-                Id = staffUser.Id,
-                Name = staffUser.Name,
-                Email = staffUser.Email,
-                Role = staffUser.Role.ToString()
+                Id = updatedUser.Id,
+                Name = updatedUser.Name,
+                Email = updatedUser.Email,
+                Role = updatedUser.Role.ToString()
             };
 
             return Result<AccountResponseDto>.Ok(response);
@@ -134,7 +134,7 @@ namespace Application
                 return Result<bool>.Fail("User not found.");
 
             user.IsActive = false;
-            await _accountRepository.UpdateAsync(user);
+            Account updatedUser = await _accountRepository.UpdateAsync(user);
 
             return Result<bool>.Ok(true);
         }

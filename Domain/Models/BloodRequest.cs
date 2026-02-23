@@ -10,7 +10,7 @@ namespace Domain.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public int RequesterId { get; set; }
-        public Requester? Requester { get; set; }
+        public Requester Requester { get; set; } = null!;
         public List<BloodType>? BloodTypesNeeded { get; set; }
         public DateTime RequestDate { get; set; }
         public required string Address { get; set; }

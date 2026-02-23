@@ -35,10 +35,11 @@ namespace Infrastructure.Repository
             return await _dbContext.Set<T>().ToListAsync();
         }
 
-        public async Task UpdateAsync(T entity)
+        public async Task<T> UpdateAsync(T entity)
         {
             _dbContext.Set<T>().Update(entity);
             await _dbContext.SaveChangesAsync();
+            return entity;
         }
 
         public Task UpdateWithoutSavingAsync(T entity)

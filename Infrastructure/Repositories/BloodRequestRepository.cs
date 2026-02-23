@@ -29,6 +29,15 @@ namespace Infrastructure.Repositories
                 .FirstOrDefaultAsync(br => br.Id == id);
         }
 
+        public async Task<BloodRequest?> GetByIdWithDonorsAndRequesterAsync(int id)
+        {
+            return await _dbContext.Set<BloodRequest>()
+                .Include(br => br.Appointments)
+                    .ThenInclude(a => a.Donor)
+                .Include(br => br.Requester)
+                .FirstOrDefaultAsync(br => br.Id == id);
+        }
+
         public async Task<List<BloodRequest>> GetActiveByBloodTypeAsync(List<BloodType> bloodTypes)
         {
             return await _dbContext.Set<BloodRequest>()
@@ -38,11 +47,18 @@ namespace Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public async Task<List<BloodRequest>> GetByRequesterIdAsync(int requesterId)
+        public async Task<List<BloodRequest>> GetByRequesterIdAsync(int requesterId, List<RequestStatus> statuses)
         {
-            return await _dbContext.Set<BloodRequest>()
+            var query = _dbContext.BloodRequests
                 .Include(br => br.Requester)
-                .Where(br => br.RequesterId == requesterId)
+                .Where(br => br.RequesterId == requesterId);
+
+            if (statuses != null && statuses.Any())
+            {
+                query = query.Where(br => statuses.Contains(br.RequestStatus));
+            }
+
+            return await query
                 .OrderByDescending(br => br.RequestDate)
                 .ToListAsync();
         }

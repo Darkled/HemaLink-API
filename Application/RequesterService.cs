@@ -1,6 +1,7 @@
 using Application.Interfaces;
 using Application.Models.Requests;
 using Application.Models.Responses;
+using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
 using Domain.Models;
 using Domain.Models.Enums;
@@ -13,10 +14,12 @@ namespace Application
 
         private readonly IBloodRequestRepository _requestRepository;
         private readonly IAccountRepository<Account> _authRepository;
-        public RequesterService(IBloodRequestRepository requestRepository, IAccountRepository<Account> accountRepository)
+        private readonly IEmailService _emailService;
+        public RequesterService(IBloodRequestRepository requestRepository, IAccountRepository<Account> accountRepository, IEmailService emailService)
         {
             _requestRepository = requestRepository;
             _authRepository = accountRepository;
+            _emailService = emailService;
         }
 
         public async Task<Result<BloodRequestResponseDto>> AddBloodRequestAsync(BloodRequestRequestDto dto, int id)
@@ -51,16 +54,17 @@ namespace Application
             return Result<BloodRequestResponseDto>.Ok(responseDto);
         }
 
-        public async Task<Result<List<BloodRequestResponseDto>>> GetBloodRequestsByRequesterIdAsync(int requesterId)
+        public async Task<Result<List<BloodRequestResponseDto>>> GetBloodRequestsByRequesterIdAsync(int requesterId, List<RequestStatus> statuses)
         {
             List<BloodRequest> bloodRequests = await _requestRepository
-                .GetByRequesterIdAsync(requesterId);
+                .GetByRequesterIdAsync(requesterId, statuses);
 
             List<BloodRequestResponseDto> response = bloodRequests.Select(br => new BloodRequestResponseDto
             {
                 RequestId = br.Id,
                 RequesterName = br.Requester!.Name,
                 TargetUnits = br.TargetUnits,
+                BloodTypesNeeded = br.BloodTypesNeeded?.Select(bt => bt.ToString()).ToList(),
                 RemainingUnits = br.RemainingUnits,
                 RequestStatus = br.RequestStatus.ToString(),
                 RequestDate = br.RequestDate,
@@ -68,6 +72,53 @@ namespace Application
             }).ToList();
 
             return Result<List<BloodRequestResponseDto>>.Ok(response);
+        }
+
+        public async Task<Result<BloodRequestResponseDto>> UpdateBloodRequestAsync(int requestId, int? requesterId, BloodRequestRequestDto bloodRequest, bool bypassOwnerCheck = false)
+        {
+            BloodRequest? existingRequest = await _requestRepository.GetByIdWithRequesterAsync(requestId);
+            if (existingRequest == null)
+                return Result<BloodRequestResponseDto>.Fail("Blood request not found.");
+            if (!bypassOwnerCheck && existingRequest.RequesterId != requesterId)
+                return Result<BloodRequestResponseDto>.Fail("Unauthorized to update this blood request.");
+
+            existingRequest.BloodTypesNeeded = bloodRequest.BloodTypesNeeded?.ToList();
+            existingRequest.TargetUnits = bloodRequest.TargetUnits;
+            existingRequest.Address = bloodRequest.Address;
+            existingRequest.RequestDate = bloodRequest.RequestDate;
+            BloodRequest updated = await _requestRepository.UpdateAsync(existingRequest);
+            BloodRequestResponseDto responseDto = new BloodRequestResponseDto
+            {
+                RequestId = updated.Id,
+                RequesterName = updated.Requester!.Name,
+                BloodTypesNeeded = updated.BloodTypesNeeded?.Select(bt => bt.ToString()).ToList(),
+                TargetUnits = updated.TargetUnits,
+                RemainingUnits = updated.RemainingUnits,
+                RequestDate = updated.RequestDate,
+                RequestStatus = updated.RequestStatus.ToString(),
+                Address = updated.Address
+            };
+            return Result<BloodRequestResponseDto>.Ok(responseDto);
+        }
+
+        public async Task<Result<bool>> DeleteBloodRequestAsync(int requestId, int? requesterId, bool bypassOwnerCheck = false)
+        {
+            BloodRequest? existingRequest = await _requestRepository.GetByIdWithRequesterAsync(requestId);
+            if (existingRequest == null)
+                return Result<bool>.Fail("Blood request not found.");
+            if (!bypassOwnerCheck && existingRequest.RequesterId != requesterId)
+                return Result<bool>.Fail("Unauthorized to delete this blood request.");
+            if (existingRequest.RequestStatus == RequestStatus.Cancelled || existingRequest.RequestStatus == RequestStatus.Expired)
+                return Result<bool>.Fail("Blood request is already deleted.");
+
+            existingRequest.RequestStatus = RequestStatus.Cancelled;
+            BloodRequest updated = await _requestRepository.UpdateAsync(existingRequest);
+
+            BloodRequest requestWithDonors = (await _requestRepository.GetByIdWithDonorsAndRequesterAsync(requestId))!;
+            requestWithDonors.Appointments.ForEach(a => _emailService
+                .SendCancellationEmailAsync(a.Donor.Email, a.Donor.Name, requestWithDonors.Requester.Name, requestWithDonors.Address, requestWithDonors.RequestDate));
+
+            return Result<bool>.Ok(true);
         }
     }
 }

@@ -6,7 +6,7 @@
         Task<T> AddWithoutSavingAsync(T entity);
         Task<T?> GetAsync(int id);
         Task<List<T>> GetAllAsync();
-        Task UpdateAsync(T entity);
+        Task<T> UpdateAsync(T entity);
         Task UpdateWithoutSavingAsync(T entity);
     }
 }

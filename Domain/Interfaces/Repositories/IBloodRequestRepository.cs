@@ -7,7 +7,8 @@ namespace Domain.Interfaces.Repositories
     {
         Task<List<BloodRequest>> GetActiveAsync();
         Task<BloodRequest?> GetByIdWithRequesterAsync(int id);
+        Task<BloodRequest?> GetByIdWithDonorsAndRequesterAsync(int id);
         Task<List<BloodRequest>> GetActiveByBloodTypeAsync(List<BloodType> bloodTypes);
-        Task<List<BloodRequest>> GetByRequesterIdAsync(int requesterId);
+        Task<List<BloodRequest>> GetByRequesterIdAsync(int requesterId, List<RequestStatus> statuses);
     }
 }
