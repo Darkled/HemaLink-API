@@ -79,6 +79,7 @@ namespace Application
 
         public async Task<Result<BloodRequestResponseDto>> UpdateBloodRequestAsync(int requestId, int? requesterId, BloodRequestRequestDto bloodRequest, bool bypassOwnerCheck = false)
         {
+
             if (bloodRequest.TargetUnits <= 0)
                 return Result<BloodRequestResponseDto>.Fail("Target units must be greater than zero.");
             if (bloodRequest.RequestDate < DateTime.UtcNow)
@@ -86,11 +87,20 @@ namespace Application
             BloodRequest? existingRequest = await _requestRepository.GetByIdWithRequesterAsync(requestId);
             if (existingRequest == null)
                 return Result<BloodRequestResponseDto>.Fail("Blood request not found.");
+            if (existingRequest.RequestStatus == RequestStatus.Cancelled || existingRequest.RequestStatus == RequestStatus.Expired)
+                return Result<BloodRequestResponseDto>.Fail("Cannot update a cancelled or expired blood request.");
             if (!bypassOwnerCheck && existingRequest.RequesterId != requesterId)
                 return Result<BloodRequestResponseDto>.Fail("Unauthorized to update this blood request.");
 
             existingRequest.BloodTypesNeeded = bloodRequest.BloodTypesNeeded?.ToList();
+            if (existingRequest.TargetUnits < bloodRequest.TargetUnits)
+            {
+                existingRequest.RequestStatus = RequestStatus.Open;
+                existingRequest.RemainingUnits += (bloodRequest.TargetUnits - existingRequest.TargetUnits);
+            }
             existingRequest.TargetUnits = bloodRequest.TargetUnits;
+            if (existingRequest.RequestStatus == RequestStatus.Expired && bloodRequest.RequestDate > DateTime.UtcNow)
+                existingRequest.RequestStatus = RequestStatus.Open;
             existingRequest.Address = bloodRequest.Address;
             existingRequest.RequestDate = bloodRequest.RequestDate;
             BloodRequest updated = await _requestRepository.UpdateAsync(existingRequest);
