@@ -26,7 +26,7 @@ namespace Infrastructure.Services
                 var client = _httpClientFactory.CreateClient("SendGrid");
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
 
-                var senderEmail = _config["Email:SenderEmail"];
+                var senderEmail = _config["SendGrid:SenderEmail"];
                 var emailData = new
                 {
                     personalizations = new[] { new { to = new[] { new { email = toEmail } } } },
@@ -36,6 +36,11 @@ namespace Infrastructure.Services
                 };
 
                 var response = await client.PostAsJsonAsync("mail/send", emailData);
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorDetails = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"ERROR DETAIL: {errorDetails}");
+                }
 
                 return response.IsSuccessStatusCode;
             }
@@ -66,7 +71,7 @@ namespace Infrastructure.Services
                 <body style='margin: 0; padding: 0; font-family: system-ui, -apple-system, ""Segoe UI""; color: #333; line-height: 1.6; background-color: #f5f5f5;'>
 
                     <div class='email-header' style='background-color: #EBEBEB; padding: 20px; width: 50%; margin: auto; text-align: center; border-bottom: 1px solid #eeeeee;'>
-                        <img src='https://i.ibb.co/5W9KZvXK/logo.png' alt='HemaLink' style='vertical-align: middle; margin-right: 10px; height: 50px;'>
+                        <img src='https://raw.githubusercontent.com/ezewheel/hemalink-assets/refs/heads/main/logo.png' alt='HemaLink' style='vertical-align: middle; margin-right: 10px; height: 50px;'>
                     </div>
 
                     <div class='email-body' style='padding: 40px 20px; max-width: 600px; margin: 0 auto; background-color: #ffffff;'>
@@ -140,7 +145,7 @@ namespace Infrastructure.Services
             var body = $@"
                 <p style='font-size: 16px;'><strong>{requester.Name}</strong>,</p>
 
-                <p style='font-size: 16px;'>Nos complace informarte que tu cuenta de HemaLink ha sido aceptada. Puedes iniciar sesión comenzar a crear colectas de sangre.</p>
+                <p style='font-size: 16px;'>Nos complace informarte que tu cuenta de HemaLink ha sido aceptada. Puedes iniciar sesión y comenzar a crear colectas de sangre.</p>
                 <p style='font-size: 16px;'>
                     Gracias por confiar en nosotros,<br>
                     Equipo de HemaLink
