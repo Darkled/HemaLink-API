@@ -13,11 +13,5 @@ namespace WebAPI.Controllers
         {
             return Ok(new { status = "Healthy", timestamp = DateTime.UtcNow });
         }
-
-        [HttpGet("test")]
-        public IActionResult GetTest()
-        {
-            return Ok(Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)));
-        } 
     }
 }

@@ -1,6 +1,7 @@
 using Application.Interfaces;
 using Application.Models.Requests;
 using Application.Models.Responses;
+using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
 using Domain.Models;
 using Domain.Models.Enums;
@@ -12,11 +13,13 @@ namespace Application
         private readonly IAccountRepository<Account> _accountRepository;
         private readonly IRequesterRepository _requesterRepository;
         private readonly IRequesterService _requesterService;
-        public ModeratorService(IRequesterRepository requesterRepository, IRequesterService requesterService, IAccountRepository<Account> accountRepository)
+        private readonly IEmailService _emailService;
+        public ModeratorService(IRequesterRepository requesterRepository, IRequesterService requesterService, IAccountRepository<Account> accountRepository, IEmailService emailService)
         {
             _requesterRepository = requesterRepository;
             _requesterService = requesterService;
             _accountRepository = accountRepository;
+            _emailService = emailService;
         }
         public async Task<Result<RequesterResponseDto>> ValidateRequesterAsync(int requesterId, bool accept)
         {
@@ -31,6 +34,11 @@ namespace Application
             }
             requester.AdmissionStatus = accept ? AdmissionStatus.Accepted : AdmissionStatus.Rejected;
             await _requesterRepository.UpdateAsync(requester);
+
+            if (accept)
+                await _emailService.SendAcceptingNotificationEmailAsync(requester);
+            else
+                await _emailService.SendRejectingNotificationEmailAsync(requester);
 
             var responseDto = new RequesterResponseDto
             {

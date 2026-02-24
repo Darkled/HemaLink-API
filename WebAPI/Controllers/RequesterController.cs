@@ -102,7 +102,7 @@ namespace WebAPI.Controllers
             if (!result.Success)
                 return BadRequest(ResponseDto<List<DonorResponseDto>>.Fail(result.Error));
 
-            return Ok(ResponseDto<List<DonorResponseDto>>.Ok(result.Data, "Your blood requests retrieved successfully"));
+            return Ok(ResponseDto<List<DonorResponseDto>>.Ok(result.Data, "Donors retrieved succesfully"));
         }
     }
 }
