@@ -5,7 +5,6 @@ using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
 using Domain.Models;
 using Domain.Models.Enums;
-using Microsoft.Extensions.Configuration;
 
 namespace Application
 {
@@ -187,7 +186,7 @@ namespace Application
         {
             var now = DateTime.UtcNow;
 
-            var allOpenRequests = await _requestRepository.GetByRequesterIdAsync(0, new List<RequestStatus> { RequestStatus.Open });
+            var allOpenRequests = await _requestRepository.GetByStatusAsync(RequestStatus.Open);
 
             var expiredRequests = allOpenRequests
                 .Where(r => r.RequestDate < now)

@@ -245,7 +245,7 @@ namespace Infrastructure
                     BloodRequestId = 1,
                     DonorId = 1,
                     IsCancelled = false,
-                    CancellationToken = "meVuNSBc1w5v88fPCg28+h5qzlysU8S2pFkQE7lY/RI="
+                    CancellationToken = "cQE7UfT4h4k_mhain5VsHqWF5ifL2L3Zv6ZALCli5LY"
                 },
                 new Appointment
                 {
@@ -253,7 +253,7 @@ namespace Infrastructure
                     BloodRequestId = 1,
                     DonorId = 2,
                     IsCancelled = false,
-                    CancellationToken = "1Srh18AcS+fqMjjLHT1+7X5H9fWLVxFJpifGz8HLhKI="
+                    CancellationToken = "cshs1Emd-D4Avux2tX2zOILZekO0NMHRS9EIJ1ptFCI"
                 },
                 new Appointment
                 {
@@ -261,7 +261,7 @@ namespace Infrastructure
                     BloodRequestId = 4,
                     DonorId = 3,
                     IsCancelled = false,
-                    CancellationToken = "ERF66vtnfDQNma/WWdEzoNAKfRyWHIqG8xHxrTUfKrU="
+                    CancellationToken = "XFZB14bTQrZFp4zD6TokzORK3VVqap4GrI9uWVGP6YI"
                 },
                 new Appointment
                 {
@@ -269,7 +269,7 @@ namespace Infrastructure
                     BloodRequestId = 2,
                     DonorId = 4,
                     IsCancelled = false,
-                    CancellationToken = "E6qU8tnkXSE3u5Sy+INDlZEYEQwDVIceHMF0O2fdDTY="
+                    CancellationToken = "3-I5hOuZcqtA75zP5Jh6JX8V3C2EQCMxzxoUXVQC038"
                 },
                 new Appointment
                 {
@@ -277,7 +277,7 @@ namespace Infrastructure
                     BloodRequestId = 2,
                     DonorId = 5,
                     IsCancelled = false,
-                    CancellationToken = "o7yR2/5M30r5Qc19VT2oPdEH65v6LoRPu9s3PJ05HHQ="
+                    CancellationToken = "Hlhv3JdcKZu9qc--1rk1y_gZOTjDFoP1ZadNQVkxUu0"
                 },
                 new Appointment
                 {
@@ -285,7 +285,7 @@ namespace Infrastructure
                     BloodRequestId = 3,
                     DonorId = 1,
                     IsCancelled = true,
-                    CancellationToken = "aU9sOGEOA/+KMHjfEIg7L8DbN3RKCdRin7rM3qIY2Qw="
+                    CancellationToken = "3e2NUbkKlyfSUP1RITdhbE--qYtf-PWnf6JqnxIs360"
                 },
                 new Appointment
                 {
@@ -293,7 +293,7 @@ namespace Infrastructure
                     BloodRequestId = 8,
                     DonorId = 2,
                     IsCancelled = false,
-                    CancellationToken = "vb//68t0hDlHgjJDDFNQcO8wqTNzDqRAtf4PU4FHhgM="
+                    CancellationToken = "gakImI2b8f-LSS2qa_sG_AY_2B5aAwc-qBcGRbI_TzM"
                 },
                 new Appointment
                 {
@@ -301,7 +301,7 @@ namespace Infrastructure
                     BloodRequestId = 10,
                     DonorId = 4,
                     IsCancelled = false,
-                    CancellationToken = "SgurdbJg/5s8fz8FSQnTmFr9FnGj0HMTevLko1AV1I8="
+                    CancellationToken = "ZO6wS39Rlipx31y3nwCNxqhcivFTU6tn8OyHfFN20bU"
                 },
                 new Appointment
                 {
@@ -309,7 +309,7 @@ namespace Infrastructure
                     BloodRequestId = 7,
                     DonorId = 5,
                     IsCancelled = false,
-                    CancellationToken = "gWhxgQ5W9Ocy5lxwUiA/lQwvW4qxJ222SZq/I86Ci78="
+                    CancellationToken = "jzXEPTZXtk1qjcGAqA1U5QG1TadefhrdUI_L_7ZuzOQ"
                 },
                 new Appointment
                 {
@@ -317,7 +317,7 @@ namespace Infrastructure
                     BloodRequestId = 4,
                     DonorId = 2,
                     IsCancelled = true,
-                    CancellationToken = "HGSq9wAozxcR6czCNWKncUp/ygKII2w8TJDuIjF5d4o="
+                    CancellationToken = "mT_3jnFlWZubQ_udT2Wpd1cKSQeCzyKf8Jx11m3CJlM"
                 }
 );
 

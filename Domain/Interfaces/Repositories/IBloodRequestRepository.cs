@@ -13,5 +13,6 @@ namespace Domain.Interfaces.Repositories
         Task<List<BloodRequest>> GetByRequesterIdAsync(int requesterId, List<RequestStatus> statuses);
         Task<List<BloodRequest>> GetExpirableAsync();
         Task UpdateRangeAsync(List<BloodRequest> requests);
+        Task<List<BloodRequest>> GetByStatusAsync(RequestStatus status);
     }
 }

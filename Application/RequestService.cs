@@ -5,6 +5,7 @@ using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
 using Domain.Models;
 using Domain.Models.Enums;
+using Microsoft.AspNetCore.WebUtilities;
 using System.Security.Cryptography;
 
 namespace Application
@@ -95,11 +96,12 @@ namespace Application
 
                 await _bloodRequestRepository.UpdateWithoutSavingAsync(bloodRequest);
 
+                byte[] bytes = RandomNumberGenerator.GetBytes(32);
                 Appointment appointment = new Appointment
                 {
                     Donor = donor,
                     BloodRequestId = bloodRequest.Id,
-                    CancellationToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32))
+                    CancellationToken = WebEncoders.Base64UrlEncode(bytes)
                 };
 
                 await _appointmentRepository.AddWithoutSavingAsync(appointment);

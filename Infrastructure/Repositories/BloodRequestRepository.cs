@@ -83,5 +83,13 @@ namespace Infrastructure.Repositories
             _dbContext.Set<BloodRequest>().UpdateRange(requests);
             await _dbContext.SaveChangesAsync();
         }
+
+        public async Task<List<BloodRequest>> GetByStatusAsync(RequestStatus status)
+        {
+            return await _dbContext.Set<BloodRequest>()
+                .Where(br => br.RequestStatus == status)
+                .ToListAsync();
+
+        }
     }
 }

@@ -6,6 +6,8 @@ using Application.Models.Responses;
 using Domain.Models.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
+using System.Security.Cryptography;
 
 namespace WebAPI.Controllers
 {

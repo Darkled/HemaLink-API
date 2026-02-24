@@ -7,7 +7,7 @@ namespace Infrastructure.BackgroundServices
     public class BloodRequestExpirationWorker : BackgroundService
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly TimeSpan _checkInterval = TimeSpan.FromMinutes(1);
+        private readonly TimeSpan _checkInterval = TimeSpan.FromMinutes(10);
 
         public BloodRequestExpirationWorker(IServiceProvider serviceProvider)
         {
