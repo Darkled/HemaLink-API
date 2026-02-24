@@ -14,12 +14,14 @@ namespace Application
         private readonly IRequesterRepository _requesterRepository;
         private readonly IRequesterService _requesterService;
         private readonly IEmailService _emailService;
-        public ModeratorService(IRequesterRepository requesterRepository, IRequesterService requesterService, IAccountRepository<Account> accountRepository, IEmailService emailService)
+        private readonly IDonorRepository _donorRepository;
+        public ModeratorService(IRequesterRepository requesterRepository, IRequesterService requesterService, IAccountRepository<Account> accountRepository, IEmailService emailService, IDonorRepository donorRepository)
         {
             _requesterRepository = requesterRepository;
             _requesterService = requesterService;
             _accountRepository = accountRepository;
             _emailService = emailService;
+            _donorRepository = donorRepository;
         }
         public async Task<Result<RequesterResponseDto>> ValidateRequesterAsync(int requesterId, bool accept)
         {
@@ -103,6 +105,19 @@ namespace Application
         public async Task<Result<List<DonorResponseDto>>> GetDonorsFromBloodRequestAsync(int requestId)
         {
             return await _requesterService.GetDonorsFromBloodRequestAsync(requestId, null, true);
+        }
+
+        public async Task<Result<List<DonorResponseDto>>> GetAllDonorsAsync()
+        {
+            List<Donor> donors = await _donorRepository.GetAllAsync();
+            List<DonorResponseDto> responseDtos = donors.Select(d => new DonorResponseDto
+            {
+                Name = d.Name,
+                Email = d.Email,
+                Phone = d.Phone
+            }).ToList();
+
+            return Result<List<DonorResponseDto>>.Ok(responseDtos);
         }
     }
 }

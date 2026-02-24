@@ -16,5 +16,15 @@ namespace Infrastructure.Repositories
         {
             return await _dbContext.Requesters.Where(r => r.AdmissionStatus == AdmissionStatus.Pending).ToListAsync();
         }
+
+        public async Task<List<Donor>> GetDonorsByRequesterIdAsync(int requesterId)
+        {
+            return await _dbContext.BloodRequests
+                .Where(br => br.RequesterId == requesterId)
+                .SelectMany(br => br.Appointments)
+                .Select(a => a.Donor)
+                .Distinct()
+                .ToListAsync();
+        }
     }
 }

@@ -13,5 +13,6 @@ namespace Application.Interfaces
         Task<Result<BloodRequestResponseDto>> UpdateBloodRequestAsync(int requestId, BloodRequestRequestDto bloodRequest);
         Task<Result<BloodRequestResponseDto>> CancelBloodRequestAsync(int requestId);
         Task<Result<List<DonorResponseDto>>> GetDonorsFromBloodRequestAsync(int requestId);
+        Task<Result<List<DonorResponseDto>>> GetAllDonorsAsync();
     }
 }

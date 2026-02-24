@@ -19,6 +19,33 @@ namespace Infrastructure.Services
             _config = config;
         }
 
+        private async Task<bool> SendEmailAsync(string toEmail, string subject, string htmlContent)
+        {
+            try
+            {
+                var client = _httpClientFactory.CreateClient("SendGrid");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
+
+                var senderEmail = _config["Email:SenderEmail"];
+                var emailData = new
+                {
+                    personalizations = new[] { new { to = new[] { new { email = toEmail } } } },
+                    from = new { email = senderEmail, name = "HemaLink" },
+                    subject,
+                    content = new[] { new { type = "text/html", value = htmlContent } }
+                };
+
+                var response = await client.PostAsJsonAsync("mail/send", emailData);
+
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error crítico en SendEmailAsync: {ex.Message}");
+                return false;
+            }
+        }
+
         private string ApplyEmailLayout(string bodyContent)
         {
             return $@"
@@ -48,30 +75,6 @@ namespace Infrastructure.Services
 
                 </body>
                 </html>";
-        }
-
-        private async Task<bool> SendEmailAsync(string toEmail, string subject, string htmlContent)
-        {
-            var client = _httpClientFactory.CreateClient("SendGrid");
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
-
-            var senderEmail = _config["Email:SenderEmail"];
-            var emailData = new
-            {
-                personalizations = new[]
-                {
-            new { to = new[] { new { email = toEmail } } }
-        },
-                from = new { email = senderEmail, name = "HemaLink" },
-                subject,
-                content = new[]
-                {
-            new { type = "text/html", value = htmlContent }
-        }
-            };
-
-            var response = await client.PostAsJsonAsync("mail/send", emailData);
-            return response.IsSuccessStatusCode;
         }
 
         public async Task<bool> SendReservationEmailAsync(string toEmail, string donorName, string hospitalName, string hospitalAddress, DateTime date, int bloodRequestId, string cancellationToken)

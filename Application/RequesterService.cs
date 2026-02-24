@@ -13,12 +13,12 @@ namespace Application
     {
 
         private readonly IBloodRequestRepository _requestRepository;
-        private readonly IAccountRepository<Account> _authRepository;
+        private readonly IRequesterRepository _requesterRepository;
         private readonly IEmailService _emailService;
-        public RequesterService(IBloodRequestRepository requestRepository, IAccountRepository<Account> accountRepository, IEmailService emailService)
+        public RequesterService(IBloodRequestRepository requestRepository, IRequesterRepository requesterRepository, IEmailService emailService)
         {
             _requestRepository = requestRepository;
-            _authRepository = accountRepository;
+            _requesterRepository = requesterRepository;
             _emailService = emailService;
         }
 
@@ -37,7 +37,7 @@ namespace Application
 
             BloodRequest created = await _requestRepository.AddAsync(bloodRequest);
 
-            Account requester = (await _authRepository.GetAsync(id))!;
+            Account requester = (await _requesterRepository.GetAsync(id))!;
 
             BloodRequestResponseDto responseDto = new BloodRequestResponseDto
             {
@@ -153,7 +153,19 @@ namespace Application
             if (request == null)
                 return Result<List<DonorResponseDto>>.Fail("Blood request not found.");
 
-            List<Donor> donors = request.Appointments.Select(a => a.Donor).ToList();
+            List<Donor> donors = request.Appointments.Where(a => a.IsCancelled == false).Select(a => a.Donor).ToList();
+            List<DonorResponseDto> response = donors.Select(d => new DonorResponseDto
+            {
+                Name = d.Name,
+                Email = d.Email,
+                Phone = d.Phone
+            }).ToList();
+            return Result<List<DonorResponseDto>>.Ok(response);
+        }
+
+        public async Task<Result<List<DonorResponseDto>>> GetDonorsFromRequesterAsync(int requesterId)
+        {
+            List<Donor> donors = await _requesterRepository.GetDonorsByRequesterIdAsync(requesterId);
             List<DonorResponseDto> response = donors.Select(d => new DonorResponseDto
             {
                 Name = d.Name,

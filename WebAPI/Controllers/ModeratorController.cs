@@ -99,5 +99,14 @@ namespace WebAPI.Controllers
 
             return Ok(ResponseDto<List<DonorResponseDto>>.Ok(result.Data, "Your blood requests retrieved successfully"));
         }
+
+        [HttpGet("all-donors")]
+        public async Task<ActionResult<ResponseDto<List<DonorResponseDto>>>> GetAllDonors()
+        {
+            Result<List<DonorResponseDto>> result = await _moderatorService.GetAllDonorsAsync();
+            if (!result.Success)
+                return BadRequest(ResponseDto<List<DonorResponseDto>>.Fail(result.Error));
+            return Ok(ResponseDto<List<DonorResponseDto>>.Ok(result.Data, "Your blood requests retrieved successfully"));
+        }
     }
 }

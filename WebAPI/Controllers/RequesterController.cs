@@ -104,5 +104,23 @@ namespace WebAPI.Controllers
 
             return Ok(ResponseDto<List<DonorResponseDto>>.Ok(result.Data, "Donors retrieved succesfully"));
         }
+
+        [HttpGet("all-donors")]
+        public async Task<ActionResult<ResponseDto<List<DonorResponseDto>>>> GetAllDonors([FromQuery] int bloodRequestId)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            int userId = int.Parse(userIdClaim.Value);
+
+            Result<List<DonorResponseDto>> result = await _requesterService.GetDonorsFromRequesterAsync(userId);
+
+            if (!result.Success)
+                return BadRequest(ResponseDto<List<DonorResponseDto>>.Fail(result.Error));
+
+            return Ok(ResponseDto<List<DonorResponseDto>>.Ok(result.Data, "Donors retrieved succesfully"));
+        }
     }
 }
