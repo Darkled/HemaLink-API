@@ -5,7 +5,6 @@ using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
 using Domain.Models;
 using Domain.Models.Enums;
-using Microsoft.Extensions.Configuration;
 
 namespace Application
 {

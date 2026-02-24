@@ -1,5 +1,4 @@
-﻿using Domain.Models.Enums;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Models
@@ -12,6 +11,6 @@ namespace Domain.Models
         public required string Name { get; set; }
         public required string Email { get; set; }
         public required string Phone { get; set; }
-		public List<Appointment> Appointments { get; set; } = new();
-	}
+        public List<Appointment> Appointments { get; set; } = new();
+    }
 }

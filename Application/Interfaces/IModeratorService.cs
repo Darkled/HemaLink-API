@@ -1,6 +1,5 @@
 ﻿using Application.Models.Requests;
 using Application.Models.Responses;
-using Domain.Models.Enums;
 
 namespace Application.Interfaces
 {
