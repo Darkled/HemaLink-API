@@ -162,8 +162,15 @@ app.MapGet("/debug-config", (IConfiguration config) =>
 
 app.MapGet("/force-migrate", async (DonationsDbContext context) =>
 {
-    await context.Database.MigrateAsync();
-    return "Migrated";
+    try
+    {
+        await context.Database.MigrateAsync();
+        return "Migrated OK";
+    }
+    catch (Exception ex)
+    {
+        return ex.ToString();
+    }
 });
 
 app.Run();
