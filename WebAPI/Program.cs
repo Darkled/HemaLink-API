@@ -10,7 +10,6 @@ using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Polly;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -117,9 +116,9 @@ builder.Services.AddCors(options =>
         name: "AllowOrigin",
         builder =>
         {
-            builder.AllowAnyOrigin()
-                    .AllowAnyMethod()
-                    .AllowAnyHeader();
+            builder.WithOrigins("https://lively-stone-0a3327e0f.1.azurestaticapps.net")
+                   .AllowAnyMethod()
+                   .AllowAnyHeader();
         });
 });
 

@@ -108,7 +108,7 @@ namespace Infrastructure.Services
                     Gracias por ayudar a salvar vidas,<br>
                     Equipo de HemaLink
                 </p>
-                <a style='color:#555;' href='{cancelUrl}'>Cancelar reserva</a>";
+                <a style='color:#555;' href='{cancelUrl}' clicktracking='off'>Cancelar reserva</a>";
 
             return await SendEmailAsync(toEmail, "Confirmación de tu reserva de donación", ApplyEmailLayout(body));
         }
