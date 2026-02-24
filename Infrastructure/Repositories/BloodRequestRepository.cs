@@ -70,5 +70,18 @@ namespace Infrastructure.Repositories
                     .ThenInclude(a => a.Donor)
                 .FirstOrDefaultAsync(br => br.Id == id);
         }
+
+        public async Task<List<BloodRequest>> GetExpirableAsync()
+        {
+            return await _dbContext.Set<BloodRequest>()
+                .Where(br => br.RequestStatus == RequestStatus.Open && br.RequestDate < DateTime.UtcNow)
+                .ToListAsync();
+        }
+
+        public async Task UpdateRangeAsync(List<BloodRequest> requests)
+        {
+            _dbContext.Set<BloodRequest>().UpdateRange(requests);
+            await _dbContext.SaveChangesAsync();
+        }
     }
 }

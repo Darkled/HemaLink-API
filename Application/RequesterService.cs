@@ -182,5 +182,25 @@ namespace Application
             }).ToList();
             return Result<List<DonorResponseDto>>.Ok(response);
         }
+
+        public async Task MarkExpiredRequestsAsync()
+        {
+            var now = DateTime.UtcNow;
+
+            var allOpenRequests = await _requestRepository.GetByRequesterIdAsync(0, new List<RequestStatus> { RequestStatus.Open });
+
+            var expiredRequests = allOpenRequests
+                .Where(r => r.RequestDate < now)
+                .ToList();
+
+            if (expiredRequests.Any())
+            {
+                foreach (var request in expiredRequests)
+                {
+                    request.RequestStatus = RequestStatus.Expired;
+                    await _requestRepository.UpdateAsync(request);
+                }
+            }
+        }
     }
 }

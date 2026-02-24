@@ -4,6 +4,7 @@ using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
 using Domain.Models;
 using Infrastructure;
+using Infrastructure.BackgroundServices;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +16,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-#region HttpClientFactories
+#region HttpClientFactories Configuration
 ApiClientConfiguration sendgridResilienceConfiguration = new()
 {
     RetryCount = 3,
@@ -56,6 +57,7 @@ builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IModeratorService, ModeratorService>();
 builder.Services.AddScoped<IRequesterRepository, RequesterRepository>();
+builder.Services.AddHostedService<BloodRequestExpirationWorker>();
 #endregion
 
 builder.Services.AddDbContext<DonationsDbContext>(options =>

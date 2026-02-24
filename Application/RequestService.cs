@@ -59,10 +59,6 @@ namespace Application
             return Result<List<BloodRequestResponseDto>>.Ok(requestForResponse);
         }
 
-        // crear donante si no existe
-        // aumentar la cantidad del bloodrequest, si el bloodrequest se completa, cambiar su estado a completed
-        // crear la tabla intermedia entre bloodrequest y donor, para guardar la informacion del donor que se asigna a cada bloodrequest
-        // enviar mail a donador
         public async Task<Result<AppointBloodRequestResponseDto>> AppointBloodRequestAsync(AppointBloodRequestRequestDto appointBloodRequestDto)
         {
             await _unitOfWork.BeginTransactionAsync();
