@@ -5,6 +5,7 @@ using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
 using Domain.Models;
 using Domain.Models.Enums;
+using System.Security.Cryptography;
 
 namespace Application
 {
@@ -102,6 +103,7 @@ namespace Application
                 {
                     Donor = donor,
                     BloodRequestId = bloodRequest.Id,
+                    CancellationToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32))
                 };
 
                 await _appointmentRepository.AddWithoutSavingAsync(appointment);
@@ -126,9 +128,13 @@ namespace Application
                         donor.Name,
                         bloodRequest.Requester.Name,
                         bloodRequest.Address,
-                        bloodRequest.RequestDate);
+                        bloodRequest.RequestDate,
+                        bloodRequest.Id,
+                        appointment.CancellationToken!
+                        );
                 }
-                catch (Exception ex) {
+                catch (Exception ex)
+                {
                     Console.WriteLine($"Error de SendGrid: {ex.Message}");
                 }
 
@@ -139,6 +145,31 @@ namespace Application
                 await _unitOfWork.RollbackAsync();
                 throw;
             }
+        }
+
+        public async Task<Result<bool>> CancelAppointmentAsync(int requestId, string cancellationToken)
+        {
+            BloodRequest? bloodRequest = await _bloodRequestRepository.GetByIdWithDonorsAndRequesterAsync(requestId);
+            if (bloodRequest == null)
+                return Result<bool>.Fail("Blood request not found.");
+            if (bloodRequest.RequestStatus != RequestStatus.Open)
+                return Result<bool>.Fail("Blood request is not active.");
+
+            Appointment? appointment = bloodRequest.Appointments.FirstOrDefault(ap => ap.CancellationToken == cancellationToken);
+            if (appointment == null)
+                return Result<bool>.Fail("Invalid cancellation token.");
+
+            if (appointment.IsCancelled)
+                return Result<bool>.Fail("Appointment is already cancelled.");
+
+            bloodRequest.RemainingUnits++;
+            if (bloodRequest.RequestStatus == RequestStatus.Completed)
+                bloodRequest.RequestStatus = RequestStatus.Open;
+
+            appointment.IsCancelled = true;
+            await _bloodRequestRepository.UpdateAsync(bloodRequest);
+
+            return Result<bool>.Ok(true);
         }
     }
 }

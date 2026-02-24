@@ -12,5 +12,7 @@ namespace Domain.Models
         public BloodRequest BloodRequest { get; set; } = null!;
         public int DonorId { get; set; }
         public Donor Donor { get; set; } = null!;
+        public required string CancellationToken { get; set; }
+        public bool IsCancelled { get; set; } = false;
     }
 }

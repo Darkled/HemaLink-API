@@ -8,5 +8,6 @@ namespace Application.Models.Responses
         public required string DonorName { get; set; }
         public required string DonorEmail { get; set; }
         public required string DonorPhone { get; set; }
+        public bool? IsCancelled { get; set; }
     }
 }

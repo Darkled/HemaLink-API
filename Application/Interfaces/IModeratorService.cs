@@ -11,7 +11,7 @@ namespace Application.Interfaces
         Task<Result<List<RequesterResponseDto>>> GetAllRequestersAsync();
         Task<Result<BloodRequestResponseDto>> AddBloodRequestAsync(BloodRequestRequestDto bloodRequest, int id);
         Task<Result<BloodRequestResponseDto>> UpdateBloodRequestAsync(int requestId, BloodRequestRequestDto bloodRequest);
-        Task<Result<bool>> DeleteBloodRequestAsync(int requestId);
+        Task<Result<BloodRequestResponseDto>> CancelBloodRequestAsync(int requestId);
         Task<Result<List<DonorResponseDto>>> GetDonorsFromBloodRequestAsync(int requestId);
     }
 }

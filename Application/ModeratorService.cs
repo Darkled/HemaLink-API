@@ -87,9 +87,9 @@ namespace Application
         {
             return await _requesterService.UpdateBloodRequestAsync(requestId, null, bloodRequest, true);
         }
-        public async Task<Result<bool>> DeleteBloodRequestAsync(int requestId)
+        public async Task<Result<BloodRequestResponseDto>> CancelBloodRequestAsync(int requestId)
         {
-            return await _requesterService.DeleteBloodRequestAsync(requestId, null, true);
+            return await _requesterService.CancelBloodRequestAsync(requestId, null, true);
         }
 
         public async Task<Result<List<DonorResponseDto>>> GetDonorsFromBloodRequestAsync(int requestId)

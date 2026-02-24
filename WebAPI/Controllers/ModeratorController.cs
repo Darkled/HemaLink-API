@@ -66,7 +66,7 @@ namespace WebAPI.Controllers
             Result<BloodRequestResponseDto> result = await _moderatorService.AddBloodRequestAsync(request, requesterId);
 
             if (!result.Success)
-                return BadRequest(ResponseDto<BloodRequestRequestDto>.Fail(result.Error));
+                return BadRequest(ResponseDto<BloodRequestResponseDto>.Fail(result.Error));
 
             return Ok(ResponseDto<BloodRequestResponseDto>.Ok(result.Data, "Blood request added succesfully"));
         }
@@ -81,12 +81,12 @@ namespace WebAPI.Controllers
         }
 
         [HttpDelete("blood-requests/{requestId}")]
-        public async Task<ActionResult<ResponseDto<bool>>> DeleteBloodRequest(int requestId)
+        public async Task<ActionResult<ResponseDto<BloodRequestResponseDto>>> DeleteBloodRequest(int requestId)
         {
-            Result<bool> result = await _moderatorService.DeleteBloodRequestAsync(requestId);
+            Result<BloodRequestResponseDto> result = await _moderatorService.CancelBloodRequestAsync(requestId);
             if (!result.Success)
-                return BadRequest(ResponseDto<bool>.Fail(result.Error));
-            return Ok(ResponseDto<bool>.Ok(result.Data, "Blood request deleted successfully"));
+                return BadRequest(ResponseDto<BloodRequestResponseDto>.Fail(result.Error));
+            return Ok(ResponseDto<BloodRequestResponseDto>.Ok(result.Data, "Blood request deleted successfully"));
         }
 
         [HttpGet("donors")]

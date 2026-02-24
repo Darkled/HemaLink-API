@@ -101,24 +101,44 @@ namespace Application
             return Result<BloodRequestResponseDto>.Ok(responseDto);
         }
 
-        public async Task<Result<bool>> DeleteBloodRequestAsync(int requestId, int? requesterId, bool bypassOwnerCheck = false)
+        public async Task<Result<BloodRequestResponseDto>> CancelBloodRequestAsync(int requestId, int? requesterId, bool bypassOwnerCheck = false)
         {
             BloodRequest? existingRequest = await _requestRepository.GetByIdWithRequesterAsync(requestId);
             if (existingRequest == null)
-                return Result<bool>.Fail("Blood request not found.");
+                return Result<BloodRequestResponseDto>.Fail("Blood request not found.");
             if (!bypassOwnerCheck && existingRequest.RequesterId != requesterId)
-                return Result<bool>.Fail("Unauthorized to delete this blood request.");
+                return Result<BloodRequestResponseDto>.Fail("Unauthorized to delete this blood request.");
             if (existingRequest.RequestStatus == RequestStatus.Cancelled || existingRequest.RequestStatus == RequestStatus.Expired)
-                return Result<bool>.Fail("Blood request is already deleted.");
+                return Result<BloodRequestResponseDto>.Fail("Blood request is already deleted.");
 
             existingRequest.RequestStatus = RequestStatus.Cancelled;
             BloodRequest updated = await _requestRepository.UpdateAsync(existingRequest);
 
             BloodRequest requestWithDonors = (await _requestRepository.GetByIdWithDonorsAndRequesterAsync(requestId))!;
-            requestWithDonors.Appointments.ForEach(a => _emailService
-                .SendCancellationEmailAsync(a.Donor.Email, a.Donor.Name, requestWithDonors.Requester.Name, requestWithDonors.Address, requestWithDonors.RequestDate));
+            var emailTasks = requestWithDonors.Appointments
+                .Select(a => _emailService.SendCancellationEmailAsync(
+                    a.Donor.Email,
+                    a.Donor.Name,
+                    requestWithDonors.Requester.Name,
+                    requestWithDonors.Address,
+                    requestWithDonors.RequestDate))
+                .ToList();
 
-            return Result<bool>.Ok(true);
+            await Task.WhenAll(emailTasks);
+
+            BloodRequestResponseDto response = new BloodRequestResponseDto
+            {
+                RequestId = updated.Id,
+                RequesterName = updated.Requester!.Name,
+                BloodTypesNeeded = updated.BloodTypesNeeded?.Select(bt => bt.ToString()).ToList(),
+                TargetUnits = updated.TargetUnits,
+                RemainingUnits = updated.RemainingUnits,
+                RequestDate = updated.RequestDate,
+                RequestStatus = updated.RequestStatus.ToString(),
+                Address = updated.Address
+            };
+
+            return Result<BloodRequestResponseDto>.Ok(response);
         }
 
         public async Task<Result<List<DonorResponseDto>>> GetDonorsFromBloodRequestAsync(int requestId, int? requesterId, bool bypassOwnerCheck = false)

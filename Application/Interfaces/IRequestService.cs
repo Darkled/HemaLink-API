@@ -8,5 +8,6 @@ namespace Application.Interfaces
     {
         Task<Result<List<BloodRequestResponseDto>>> GetOpenRequestsAsync(List<BloodType> bloodTypes);
         Task<Result<AppointBloodRequestResponseDto>> AppointBloodRequestAsync(AppointBloodRequestRequestDto appointBloodRequestDto);
+        Task<Result<bool>> CancelAppointmentAsync(int requestId, string cancellationToken);
     }
 }

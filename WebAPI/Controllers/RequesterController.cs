@@ -74,17 +74,17 @@ namespace WebAPI.Controllers
             return Ok(ResponseDto<List<BloodRequestResponseDto>>.Ok(result.Data, "Your blood requests retrieved successfully"));
         }
 
-        [HttpDelete("blood-requests/{requestId}")]
-        public async Task<ActionResult<ResponseDto<bool>>> DeleteBloodRequest(int requestId)
+        [HttpPut("blood-requests/cancel/{requestId}")]
+        public async Task<ActionResult<ResponseDto<BloodRequestResponseDto>>> CancelBloodRequest(int requestId)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim == null)
                 return Unauthorized();
             int requesterId = int.Parse(userIdClaim.Value);
-            Result<bool> result = await _requesterService.DeleteBloodRequestAsync(requestId, requesterId);
+            Result<BloodRequestResponseDto> result = await _requesterService.CancelBloodRequestAsync(requestId, requesterId);
             if (!result.Success)
                 return BadRequest(ResponseDto<bool>.Fail(result.Error));
-            return Ok(ResponseDto<bool>.Ok(result.Data, "Blood request deleted successfully"));
+            return Ok(ResponseDto<BloodRequestResponseDto>.Ok(result.Data, "Blood request deleted successfully"));
         }
 
         [HttpGet("donors")]

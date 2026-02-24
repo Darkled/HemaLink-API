@@ -41,6 +41,15 @@ namespace WebAPI.Controllers
 
             return Ok(ResponseDto<AppointBloodRequestResponseDto>.Ok(result.Data, "Blood requests retrieved succesfully"));
         }
+
+        [HttpPut("appointment/cancel/{requestId}")]
+        public async Task<IActionResult> CancelBloodRequest(int requestId, [FromQuery] string cancellationToken)
+        {
+            Result<bool> result = await _requestService.CancelAppointmentAsync(requestId, cancellationToken);
+            if (!result.Success)
+                return BadRequest(ResponseDto<bool>.Fail(result.Error));
+            return Ok(ResponseDto<bool>.Ok(result.Data, "Blood request cancelled succesfully"));
+        }
     }
 }
 

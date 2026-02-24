@@ -9,19 +9,21 @@ namespace Infrastructure.Services
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly string _apiKey;
+        private readonly IConfiguration _config;
 
         public EmailService(IHttpClientFactory httpClientFactory, IConfiguration config)
         {
             _httpClientFactory = httpClientFactory;
             _apiKey = config["SendGrid:ApiKey"]!;
-
+            _config = config;
         }
 
-        public async Task<bool> SendReservationEmailAsync(string toEmail, string donorName, string hospitalName, string hospitalAddress, DateTime date)
+        public async Task<bool> SendReservationEmailAsync(string toEmail, string donorName, string hospitalName, string hospitalAddress, DateTime date, int bloodRequestId, string cancellationToken)
         {
             var client = _httpClientFactory.CreateClient("SendGrid");
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
 
+            var cancelUrl = $"{_config["Frontend:BaseUrl"]}/donation-cancelation/{bloodRequestId}/{cancellationToken}";
             var emailData = new
             {
                 personalizations = new[]
@@ -70,6 +72,7 @@ namespace Infrastructure.Services
                                         Gracias por ayudar a salvar vidas,<br>
                                         Equipo de HemaLink
                                     </p>
+                                    <a style='color:#555;' href='{cancelUrl}'>Cancelar reserva</a>
                                 </div>
                             </body>
                             </html>"
