@@ -186,7 +186,7 @@ namespace Application
         {
             var now = DateTime.UtcNow;
 
-            var allOpenRequests = await _requestRepository.GetByStatusAsync(RequestStatus.Open);
+            var allOpenRequests = await _requestRepository.GetAllAsync();
 
             var expiredRequests = allOpenRequests
                 .Where(r => r.RequestDate < now)

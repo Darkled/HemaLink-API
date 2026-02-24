@@ -18,7 +18,7 @@ namespace Infrastructure.Repositories
             return await _dbContext.Set<BloodRequest>()
                 .Include(br => br.Requester)
                 .Where(br => br.RequestStatus == RequestStatus.Open)
-                .OrderByDescending(br => br.RequestDate)
+                .OrderBy(br => br.RequestDate)
                 .ToListAsync();
         }
 
