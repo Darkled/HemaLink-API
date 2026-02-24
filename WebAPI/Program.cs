@@ -25,6 +25,8 @@ ApiClientConfiguration sendgridResilienceConfiguration = new()
     HandledEventsAllowedBeforeBreaking = 5
 };
 
+Console.WriteLine("APP ARRANCANDO...");
+
 builder.Services.AddHttpClient(
     "SendGrid",
     client =>
