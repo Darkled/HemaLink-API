@@ -12,5 +12,6 @@ namespace Application.Interfaces
         Task<Result<BloodRequestResponseDto>> CancelBloodRequestAsync(int requestId, int? requesterId, bool bypassOwnerCheck = false);
         Task<Result<List<DonorResponseDto>>> GetDonorsFromBloodRequestAsync(int requestId, int? requesterId, bool bypassOwnerCheck = false);
         Task<Result<List<DonorResponseDto>>> GetDonorsFromRequesterAsync(int requesterId);
+        Task MarkExpiredRequestsAsync();
     }
 }
