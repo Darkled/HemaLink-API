@@ -150,7 +150,7 @@ namespace Infrastructure.Services
                     Gracias por confiar en nosotros,<br>
                     Equipo de HemaLink
                 </p>";
-            return await SendEmailAsync(requester.Email, "Notificación de rechazo de solicitud", ApplyEmailLayout(body));
+            return await SendEmailAsync(requester.Email, "Notificación de aceptación de solicitud", ApplyEmailLayout(body));
 
         }
         public async Task<bool> SendRejectingNotificationEmailAsync(Requester requester)
@@ -164,7 +164,7 @@ namespace Infrastructure.Services
                     Gracias por confiar en nosotros,<br>
                     Equipo de HemaLink
                 </p>";
-            return await SendEmailAsync(requester.Email, "Notificación de aceptación de solicitud", ApplyEmailLayout(body));
+            return await SendEmailAsync(requester.Email, "Notificación de rechazo de solicitud", ApplyEmailLayout(body));
         }
     }
 }

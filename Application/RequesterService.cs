@@ -24,6 +24,10 @@ namespace Application
 
         public async Task<Result<BloodRequestResponseDto>> AddBloodRequestAsync(BloodRequestRequestDto dto, int id)
         {
+            if (dto.TargetUnits <= 0)
+                return Result<BloodRequestResponseDto>.Fail("Target units must be greater than zero.");
+            if (dto.RequestDate < DateTime.UtcNow)
+                return Result<BloodRequestResponseDto>.Fail("Request date cannot be in the past.");
             BloodRequest bloodRequest = new BloodRequest
             {
                 RequesterId = id,
@@ -76,6 +80,10 @@ namespace Application
 
         public async Task<Result<BloodRequestResponseDto>> UpdateBloodRequestAsync(int requestId, int? requesterId, BloodRequestRequestDto bloodRequest, bool bypassOwnerCheck = false)
         {
+            if (bloodRequest.TargetUnits <= 0)
+                return Result<BloodRequestResponseDto>.Fail("Target units must be greater than zero.");
+            if (bloodRequest.RequestDate < DateTime.UtcNow)
+                return Result<BloodRequestResponseDto>.Fail("Request date cannot be in the past.");
             BloodRequest? existingRequest = await _requestRepository.GetByIdWithRequesterAsync(requestId);
             if (existingRequest == null)
                 return Result<BloodRequestResponseDto>.Fail("Blood request not found.");

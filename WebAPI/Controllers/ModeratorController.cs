@@ -60,7 +60,7 @@ namespace WebAPI.Controllers
             return Ok(result.Data);
         }
 
-        [HttpPost("blood-requests/")]
+        [HttpPost("blood-requests")]
         public async Task<ActionResult<ResponseDto<BloodRequestResponseDto>>> AddBloodRequest([FromQuery] int requesterId, [FromBody] BloodRequestRequestDto request)
         {
             Result<BloodRequestResponseDto> result = await _moderatorService.AddBloodRequestAsync(request, requesterId);
