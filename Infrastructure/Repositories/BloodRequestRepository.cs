@@ -62,5 +62,13 @@ namespace Infrastructure.Repositories
                 .OrderByDescending(br => br.RequestDate)
                 .ToListAsync();
         }
+
+        public async Task<BloodRequest?> GetByIdWithDonorsAsync(int id)
+        {
+            return await _dbContext.Set<BloodRequest>()
+                .Include(br => br.Appointments)
+                    .ThenInclude(a => a.Donor)
+                .FirstOrDefaultAsync(br => br.Id == id);
+        }
     }
 }

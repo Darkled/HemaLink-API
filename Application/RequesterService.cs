@@ -120,5 +120,27 @@ namespace Application
 
             return Result<bool>.Ok(true);
         }
+
+        public async Task<Result<List<DonorResponseDto>>> GetDonorsFromBloodRequestAsync(int requestId, int? requesterId, bool bypassOwnerCheck = false)
+        {
+            BloodRequest? existingRequest = await _requestRepository.GetByIdWithRequesterAsync(requestId);
+            if (existingRequest == null)
+                return Result<List<DonorResponseDto>>.Fail("Blood request not found.");
+            if (!bypassOwnerCheck && existingRequest.RequesterId != requesterId)
+                return Result<List<DonorResponseDto>>.Fail("Unauthorized to view donors for this blood request.");
+
+            BloodRequest? request = await _requestRepository.GetByIdWithDonorsAsync(requestId);
+            if (request == null)
+                return Result<List<DonorResponseDto>>.Fail("Blood request not found.");
+
+            List<Donor> donors = request.Appointments.Select(a => a.Donor).ToList();
+            List<DonorResponseDto> response = donors.Select(d => new DonorResponseDto
+            {
+                Name = d.Name,
+                Email = d.Email,
+                Phone = d.Phone
+            }).ToList();
+            return Result<List<DonorResponseDto>>.Ok(response);
+        }
     }
 }

@@ -10,5 +10,6 @@ namespace Application.Interfaces
         Task<Result<List<BloodRequestResponseDto>>> GetBloodRequestsByRequesterIdAsync(int id, List<RequestStatus> statuses);
         Task<Result<BloodRequestResponseDto>> UpdateBloodRequestAsync(int requestId, int? requesterId, BloodRequestRequestDto bloodRequest, bool bypassOwnerCheck = false);
         Task<Result<bool>> DeleteBloodRequestAsync(int requestId, int? requesterId, bool bypassOwnerCheck = false);
+        Task<Result<List<DonorResponseDto>>> GetDonorsFromBloodRequestAsync(int requestId, int? requesterId, bool bypassOwnerCheck = false);
     }
 }

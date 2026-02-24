@@ -1,4 +1,5 @@
-﻿using Application.Interfaces;
+﻿using Application;
+using Application.Interfaces;
 using Application.Models;
 using Application.Models.Requests;
 using Application.Models.Responses;
@@ -86,6 +87,17 @@ namespace WebAPI.Controllers
             if (!result.Success)
                 return BadRequest(ResponseDto<bool>.Fail(result.Error));
             return Ok(ResponseDto<bool>.Ok(result.Data, "Blood request deleted successfully"));
+        }
+
+        [HttpGet("donors")]
+        public async Task<ActionResult<ResponseDto<List<DonorResponseDto>>>> GetDonors([FromQuery] int bloodRequestId)
+        {
+            Result<List<DonorResponseDto>> result = await _moderatorService.GetDonorsFromBloodRequestAsync(bloodRequestId);
+
+            if (!result.Success)
+                return BadRequest(ResponseDto<List<DonorResponseDto>>.Fail(result.Error));
+
+            return Ok(ResponseDto<List<DonorResponseDto>>.Ok(result.Data, "Your blood requests retrieved successfully"));
         }
     }
 }

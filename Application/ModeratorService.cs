@@ -86,12 +86,15 @@ namespace Application
         public async Task<Result<BloodRequestResponseDto>> UpdateBloodRequestAsync(int requestId, BloodRequestRequestDto bloodRequest)
         {
             return await _requesterService.UpdateBloodRequestAsync(requestId, null, bloodRequest, true);
-
         }
         public async Task<Result<bool>> DeleteBloodRequestAsync(int requestId)
         {
             return await _requesterService.DeleteBloodRequestAsync(requestId, null, true);
+        }
 
+        public async Task<Result<List<DonorResponseDto>>> GetDonorsFromBloodRequestAsync(int requestId)
+        {
+            return await _requesterService.GetDonorsFromBloodRequestAsync(requestId, null, true);
         }
     }
 }

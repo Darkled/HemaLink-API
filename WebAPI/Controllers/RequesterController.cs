@@ -86,5 +86,23 @@ namespace WebAPI.Controllers
                 return BadRequest(ResponseDto<bool>.Fail(result.Error));
             return Ok(ResponseDto<bool>.Ok(result.Data, "Blood request deleted successfully"));
         }
+
+        [HttpGet("donors")]
+        public async Task<ActionResult<ResponseDto<List<DonorResponseDto>>>> GetDonors([FromQuery] int bloodRequestId)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            int userId = int.Parse(userIdClaim.Value);
+
+            Result<List<DonorResponseDto>> result = await _requesterService.GetDonorsFromBloodRequestAsync(bloodRequestId, userId);
+
+            if (!result.Success)
+                return BadRequest(ResponseDto<List<DonorResponseDto>>.Fail(result.Error));
+
+            return Ok(ResponseDto<List<DonorResponseDto>>.Ok(result.Data, "Your blood requests retrieved successfully"));
+        }
     }
 }
