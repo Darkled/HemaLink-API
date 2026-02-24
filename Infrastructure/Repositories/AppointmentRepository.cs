@@ -2,7 +2,6 @@ using Domain.Interfaces.Repositories;
 using Domain.Models;
 using Infrastructure.Repository;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 
 namespace Infrastructure.Repositories
 {

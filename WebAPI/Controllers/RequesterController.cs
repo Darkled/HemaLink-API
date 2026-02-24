@@ -1,12 +1,9 @@
-﻿using Application;
-using Application.Interfaces;
+﻿using Application.Interfaces;
 using Application.Models;
 using Application.Models.Requests;
 using Application.Models.Responses;
-using Domain.Models;
 using Domain.Models.Enums;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
