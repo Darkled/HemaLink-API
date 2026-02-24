@@ -25,8 +25,6 @@ ApiClientConfiguration sendgridResilienceConfiguration = new()
     HandledEventsAllowedBeforeBreaking = 5
 };
 
-Console.WriteLine("APP ARRANCANDO...");
-
 builder.Services.AddHttpClient(
     "SendGrid",
     client =>
@@ -156,5 +154,10 @@ using (var scope = app.Services.CreateScope())
         Console.WriteLine(ex.Message);
     }
 }
+
+app.MapGet("/debug-config", (IConfiguration config) =>
+{
+    return config["ConnectionStrings:DbConnectionString"];
+});
 
 app.Run();
