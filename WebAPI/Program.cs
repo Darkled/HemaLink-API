@@ -141,23 +141,29 @@ app.UseCors("AllowOrigin");
 
 app.MapControllers();
 
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    try
-    {
-        var context = services.GetRequiredService<DonationsDbContext>();
-        context.Database.Migrate();
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine(ex.Message);
-    }
-}
+//using (var scope = app.Services.CreateScope())
+//{
+//    var services = scope.ServiceProvider;
+//    try
+//    {
+//        var context = services.GetRequiredService<DonationsDbContext>();
+//        context.Database.Migrate();
+//    }
+//    catch (Exception ex)
+//    {
+//        Console.WriteLine(ex.Message);
+//    }
+//}
 
 app.MapGet("/debug-config", (IConfiguration config) =>
 {
     return config["ConnectionStrings:DbConnectionString"];
+});
+
+app.MapGet("/force-migrate", async (DonationsDbContext context) =>
+{
+    await context.Database.MigrateAsync();
+    return "Migrated";
 });
 
 app.Run();

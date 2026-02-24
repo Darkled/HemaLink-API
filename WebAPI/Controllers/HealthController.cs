@@ -9,6 +9,7 @@ namespace WebAPI.Controllers
         [HttpGet]
         public IActionResult Get()
         {
+            Console.WriteLine("Health check endpoint was called.");
             return Ok(new { status = "Healthy", timestamp = DateTime.UtcNow });
         }
     }
