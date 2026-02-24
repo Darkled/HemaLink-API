@@ -114,11 +114,12 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(
         name: "AllowOrigin",
-        builder =>
+        policy =>
         {
-            builder.AllowAnyOrigin()
-                    .AllowAnyMethod()
-                    .AllowAnyHeader();
+            policy.WithOrigins("https://lively-stone-0a3327e0f.1.azurestaticapps.net")
+                  .AllowAnyMethod()
+                  .AllowAnyHeader()
+                  .AllowCredentials();
         });
 });
 
