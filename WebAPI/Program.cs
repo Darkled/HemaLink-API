@@ -120,6 +120,8 @@ builder.Services.AddCors(options =>
         });
 });
 
+builder.WebHost.UseUrls("http://0.0.0.0:5165");
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

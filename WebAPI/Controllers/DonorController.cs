@@ -39,7 +39,7 @@ namespace WebAPI.Controllers
             if (!result.Success)
                 return BadRequest(ResponseDto<AccountResponseDto>.Fail(result.Error));
 
-            return Ok(ResponseDto<AppointBloodRequestResponseDto>.Ok(result.Data, "Blood requests retrieved succesfully"));
+            return Ok(ResponseDto<AppointBloodRequestResponseDto>.Ok(result.Data, "Appointment created succesfully"));
         }
 
         [HttpPut("appointment/cancel/{requestId}")]
